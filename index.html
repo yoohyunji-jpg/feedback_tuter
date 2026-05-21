@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello Body — 관리자</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue: #0071e3; --blue-bg: #e8f2ff;
+      --text: #1d1d1f; --text-2: #6e6e73; --text-3: #a1a1a6;
+      --border: #d2d2d7; --border-s: #e8e8ed;
+      --bg: #f5f5f7; --card: #ffffff;
+      --good: #1d7a45; --good-bg: #f0faf4; --good-l: #d1f0e0;
+      --next: #1a56b0; --next-bg: #f0f5ff; --next-l: #c7d9f8;
+      --lv1c: #c04000; --lv1b: #fff0e6;
+      --lv2c: #b45309; --lv2b: #fffbf0;
+      --lv3c: #1d7a45; --lv3b: #f0faf4;
+      --lv4c: #1a56b0; --lv4b: #f0f5ff;
+      --danger: #ff3b30; --danger-bg: #fff0ef;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Apple SD Gothic Neo', sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; -webkit-font-smoothing: antialiased;
+    }
+
+    /* Topbar */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid var(--border-s);
+      padding: 14px 24px; display: flex; align-items: center; gap: 10px;
+    }
+    .brand { font-size: 17px; font-weight: 700; letter-spacing: -0.5px; }
+    .brand-sep { color: var(--border); }
+    .brand-sub { font-size: 13px; color: var(--text-2); }
+
+    .container { max-width: 860px; margin: 0 auto; padding: 32px 24px 80px; }
+
+    /* Card */
+    .card {
+      background: var(--card); border-radius: 18px;
+      padding: 28px; margin-bottom: 20px;
+      border: 1px solid var(--border-s);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .card-title {
+      font-size: 19px; font-weight: 700; letter-spacing: -0.4px;
+      margin-bottom: 22px; display: flex; align-items: center; gap: 10px;
+    }
+    .count-pill {
+      font-size: 12px; font-weight: 600; padding: 2px 9px;
+      border-radius: 100px; background: var(--blue); color: white;
+    }
+
+    /* Form */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .fgrp { display: flex; flex-direction: column; gap: 6px; }
+    .fgrp label { font-size: 11px; font-weight: 600; color: var(--text-2); letter-spacing: 0.06em; text-transform: uppercase; }
+    .fgrp input {
+      padding: 11px 14px; border: 1.5px solid var(--border);
+      border-radius: 10px; font-size: 15px; font-family: inherit;
+      color: var(--text); background: white; outline: none; transition: border-color 0.15s;
+    }
+    .fgrp input:focus { border-color: var(--blue); }
+    .fgrp input::placeholder { color: var(--text-3); }
+
+    .level-section { margin-bottom: 16px; }
+    .level-section label { display: block; margin-bottom: 8px; font-size: 11px; font-weight: 600; color: var(--text-2); letter-spacing: 0.06em; text-transform: uppercase; }
+    .level-picker { display: flex; gap: 8px; }
+    .lv-btn {
+      flex: 1; padding: 10px 6px; border: 1.5px solid var(--border);
+      border-radius: 10px; background: white; color: var(--text-2);
+      font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
+      transition: all 0.15s; text-align: center; line-height: 1.3;
+    }
+    .lv-btn span { display: block; font-size: 10px; font-weight: 400; margin-top: 2px; opacity: 0.7; }
+    .lv-btn:hover { border-color: var(--blue); color: var(--blue); }
+    .lv-btn.active { background: var(--blue); border-color: var(--blue); color: white; }
+
+    .btn-add {
+      width: 100%; padding: 14px; background: var(--blue); color: white;
+      border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: opacity 0.15s;
+    }
+    .btn-add:hover { opacity: 0.9; }
+
+    /* Member item */
+    .member-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 0; border-bottom: 1px solid var(--border-s);
+    }
+    .member-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .member-item:first-child { padding-top: 0; }
+    .avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: var(--blue-bg); color: var(--blue);
+      font-size: 16px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .minfo { flex: 1; min-width: 0; }
+    .mname { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
+    .mphone { font-size: 12px; color: var(--text-2); margin-top: 1px; }
+    .mdate { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+
+    .lv-badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 100px; white-space: nowrap; flex-shrink: 0; }
+    .b1 { background: var(--lv1b); color: var(--lv1c); }
+    .b2 { background: var(--lv2b); color: var(--lv2c); }
+    .b3 { background: var(--lv3b); color: var(--lv3c); }
+    .b4 { background: var(--lv4b); color: var(--lv4c); }
+
+    .mactions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; flex-wrap: wrap; }
+    .lv-sel {
+      padding: 7px 10px; border: 1.5px solid var(--border);
+      border-radius: 8px; font-size: 12px; font-weight: 600;
+      font-family: inherit; color: var(--text); background: white; cursor: pointer; outline: none;
+    }
+    .lv-sel:focus { border-color: var(--blue); }
+    .btn-sm {
+      padding: 7px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;
+      cursor: pointer; border: 1.5px solid var(--border); background: white;
+      color: var(--text-2); font-family: inherit; transition: all 0.15s; white-space: nowrap;
+    }
+    .btn-sm:hover { border-color: var(--blue); color: var(--blue); }
+    .btn-fb { background: var(--good-bg); border-color: transparent; color: var(--good); }
+    .btn-fb:hover { border-color: var(--good); background: var(--good-bg); color: var(--good); }
+    .btn-del { background: var(--danger-bg); border-color: transparent; color: var(--danger); }
+    .btn-del:hover { border-color: var(--danger); background: var(--danger-bg); }
+
+    /* Link popup */
+    .popup {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.3); backdrop-filter: blur(4px);
+      z-index: 200; align-items: center; justify-content: center; padding: 24px;
+    }
+    .popup.open { display: flex; }
+    .popup-box {
+      background: white; border-radius: 20px; padding: 28px;
+      width: 100%; max-width: 500px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+    }
+    .popup-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+    .popup-desc { font-size: 13px; color: var(--text-2); margin-bottom: 18px; }
+    .popup-url {
+      background: #f5f5f7; border-radius: 10px; padding: 12px 14px;
+      font-size: 12px; color: var(--text-2); word-break: break-all; line-height: 1.6;
+      border: 1px solid var(--border-s); margin-bottom: 14px;
+    }
+    .popup-btns { display: flex; gap: 10px; }
+    .btn-copy { flex: 1; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-close { padding: 12px 20px; border: 1.5px solid var(--border); background: white; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; color: var(--text-2); }
+
+    /* Feedback sheet */
+    .fb-sheet {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.35); backdrop-filter: blur(4px);
+      z-index: 210; align-items: flex-end; justify-content: center;
+    }
+    .fb-sheet.open { display: flex; }
+    .fb-inner {
+      background: white; border-radius: 24px 24px 0 0;
+      width: 100%; max-width: 620px; max-height: 92vh;
+      overflow-y: auto; padding: 24px 24px 40px;
+      box-shadow: 0 -8px 40px rgba(0,0,0,0.15);
+    }
+    .fb-handle {
+      width: 36px; height: 4px; background: var(--border);
+      border-radius: 2px; margin: 0 auto 20px;
+    }
+    .fb-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
+    .fb-title { font-size: 19px; font-weight: 700; letter-spacing: -0.4px; }
+    .fb-close {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--bg); border: none; cursor: pointer;
+      font-size: 14px; color: var(--text-2); display: flex; align-items: center; justify-content: center;
+    }
+    .fb-date-row { margin-bottom: 20px; }
+    .fb-date-row label { display: block; font-size: 11px; font-weight: 600; color: var(--text-2); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
+    .fb-date-row input[type="date"] {
+      padding: 10px 14px; border: 1.5px solid var(--border);
+      border-radius: 10px; font-size: 15px; font-family: inherit;
+      color: var(--text); background: white; outline: none; transition: border-color 0.15s;
+    }
+    .fb-date-row input[type="date"]:focus { border-color: var(--blue); }
+
+    .fb-section { margin-bottom: 20px; }
+    .fb-sec-label {
+      font-size: 13px; font-weight: 700; padding: 6px 12px;
+      border-radius: 8px; margin-bottom: 10px; display: inline-block;
+    }
+    .fb-sec-label.good { background: var(--good-l); color: var(--good); }
+    .fb-sec-label.next { background: var(--next-l); color: var(--next); }
+
+    .radio-list { display: flex; flex-direction: column; gap: 6px; }
+    .radio-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border-radius: 11px;
+      cursor: pointer; border: 1.5px solid var(--border-s);
+      transition: all 0.15s; user-select: none;
+    }
+    .radio-item:hover { border-color: var(--border); background: #fafafa; }
+    .radio-item input[type="radio"] { display: none; }
+    .radio-circle {
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 1.5px solid var(--border); flex-shrink: 0;
+      transition: all 0.15s; display: flex; align-items: center; justify-content: center;
+    }
+    .radio-item.checked-good .radio-circle { border-color: var(--good); background: var(--good); }
+    .radio-item.checked-next .radio-circle { border-color: var(--next); background: var(--next); }
+    .radio-circle::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: white; opacity: 0; }
+    .radio-item.checked-good .radio-circle::after,
+    .radio-item.checked-next .radio-circle::after { opacity: 1; }
+    .radio-item.checked-good { border-color: rgba(29,122,69,0.35); background: var(--good-bg); }
+    .radio-item.checked-next { border-color: rgba(26,86,176,0.35); background: var(--next-bg); }
+    .radio-num { font-size: 11px; font-weight: 700; color: var(--text-3); min-width: 22px; }
+    .radio-name { font-size: 14px; color: var(--text); font-weight: 500; }
+
+    .fb-link-area { margin-bottom: 14px; display: none; }
+    .fb-link-box {
+      background: #f5f5f7; border-radius: 10px; padding: 12px 14px;
+      font-size: 12px; color: var(--text-2); word-break: break-all;
+      line-height: 1.6; border: 1px solid var(--border-s);
+    }
+    .fb-actions { display: flex; gap: 10px; }
+    .btn-gen {
+      flex: 1; padding: 14px; background: var(--good); color: white;
+      border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: opacity 0.15s;
+    }
+    .btn-gen:hover { opacity: 0.9; }
+    .btn-copy-fb {
+      padding: 14px 18px; background: var(--blue); color: white;
+      border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
+      cursor: pointer; font-family: inherit; display: none;
+    }
+
+    /* Empty */
+    .empty { text-align: center; padding: 40px 20px; color: var(--text-3); font-size: 14px; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(8px);
+      background: var(--text); color: white;
+      font-size: 13px; font-weight: 500; padding: 10px 22px;
+      border-radius: 100px; opacity: 0; pointer-events: none;
+      transition: all 0.28s; z-index: 300; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+      .container { padding: 20px 16px 60px; }
+      .card { padding: 20px; }
+      .lv-btn span { display: none; }
+      .fb-inner { padding: 20px 16px 40px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="brand">Hello Body</span>
+  <span class="brand-sep">·</span>
+  <span class="brand-sub">관리자 패널</span>
+</div>
+
+<div class="container">
+  <!-- Add member -->
+  <div class="card">
+    <div class="card-title">회원 등록</div>
+    <div class="form-row">
+      <div class="fgrp">
+        <label>이름</label>
+        <input type="text" id="inp-name" placeholder="홍길동" autocomplete="off">
+      </div>
+      <div class="fgrp">
+        <label>전화번호</label>
+        <input type="tel" id="inp-phone" placeholder="01012345678" autocomplete="off">
+      </div>
+    </div>
+    <div class="level-section">
+      <label>레벨 지정</label>
+      <div class="level-picker">
+        <button class="lv-btn active" data-l="1">L1<span>Awakening</span></button>
+        <button class="lv-btn" data-l="2">L2<span>Alignment</span></button>
+        <button class="lv-btn" data-l="3">L3<span>Connection</span></button>
+        <button class="lv-btn" data-l="4">L4<span>Flow</span></button>
+      </div>
+    </div>
+    <button class="btn-add" onclick="addMember()">회원 등록하기</button>
+  </div>
+
+  <!-- Member list -->
+  <div class="card">
+    <div class="card-title">
+      등록 회원
+      <span class="count-pill" id="cnt">0</span>
+    </div>
+    <div id="mlist"></div>
+  </div>
+</div>
+
+<!-- Link popup -->
+<div class="popup" id="linkPopup">
+  <div class="popup-box">
+    <div class="popup-title" id="popTitle"></div>
+    <div class="popup-desc">아래 링크를 복사해서 회원에게 보내주세요.<br>회원은 이 링크로 자신의 대시보드에 접속할 수 있어요.</div>
+    <div class="popup-url" id="popUrl"></div>
+    <div class="popup-btns">
+      <button class="btn-copy" onclick="doCopy()">링크 복사</button>
+      <button class="btn-close" onclick="closePopup()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- Feedback sheet -->
+<div class="fb-sheet" id="fbSheet">
+  <div class="fb-inner">
+    <div class="fb-handle"></div>
+    <div class="fb-head">
+      <div class="fb-title" id="fbTitle">피드백 입력</div>
+      <button class="fb-close" onclick="closeFb()">✕</button>
+    </div>
+
+    <div class="fb-date-row">
+      <label>수업 날짜</label>
+      <input type="date" id="fbDate">
+    </div>
+
+    <div class="fb-section">
+      <div class="fb-sec-label good">오늘 잘했어요 — 1개 선택</div>
+      <div class="radio-list" id="fbGoodList"></div>
+    </div>
+
+    <div class="fb-section">
+      <div class="fb-sec-label next">다음번에 더 신경써봐요 — 1개 선택</div>
+      <div class="radio-list" id="fbNextList"></div>
+    </div>
+
+    <div class="fb-link-area" id="fbLinkArea">
+      <div style="font-size:11px;font-weight:600;color:var(--text-2);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;">생성된 피드백 링크</div>
+      <div class="fb-link-box" id="fbLinkBox"></div>
+    </div>
+
+    <div class="fb-actions">
+      <button class="btn-gen" onclick="genFbLink()">피드백 링크 생성</button>
+      <button class="btn-copy-fb" id="btnCopyFb" onclick="copyFbLink()">복사</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DB = 'hb_members';
+let selLevel = 1;
+let currentLink = '';
+let fbMember = null;
+let fbGenUrl = '';
+let fbGoodSel = null;
+let fbNextSel = null;
+
+// Level picker (add member)
+document.querySelectorAll('.lv-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.lv-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    selLevel = parseInt(b.dataset.l);
+  });
+});
+
+function getAll() { try { return JSON.parse(localStorage.getItem(DB)||'[]'); } catch { return []; } }
+function setAll(a) { localStorage.setItem(DB, JSON.stringify(a)); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function fmtPhone(p) {
+  p = p.replace(/\D/g,'');
+  if (p.length===11) return p.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+  if (p.length===10) return p.replace(/(\d{3})(\d{3,4})(\d{4})/, '$1-$2-$3');
+  return p;
+}
+function maskPhone(p) {
+  const d = p.replace(/\D/g,'');
+  return d.length>=8 ? d.slice(0,3)+'-****-'+d.slice(-4) : p;
+}
+function makeToken(m) {
+  const raw = JSON.stringify({id:m.id, n:m.name, p:m.phone.replace(/\D/g,'').slice(-4), l:m.level});
+  return btoa(unescape(encodeURIComponent(raw)));
+}
+function makeLink(m) {
+  const memberBase = new URL('../12step feedback_member/', window.location.href).href;
+  return memberBase + '?t=' + makeToken(m);
+}
+
+function addMember() {
+  const name = document.getElementById('inp-name').value.trim();
+  const raw = document.getElementById('inp-phone').value.replace(/\D/g,'');
+  if (!name) { toast('이름을 입력해주세요'); return; }
+  if (raw.length<8) { toast('올바른 전화번호를 입력해주세요'); return; }
+  const all = getAll();
+  const m = { id:uid(), name, phone:fmtPhone(raw), level:selLevel, created:new Date().toISOString().slice(0,10) };
+  all.push(m);
+  setAll(all);
+  document.getElementById('inp-name').value = '';
+  document.getElementById('inp-phone').value = '';
+  render();
+  toast(name+'님이 등록되었습니다');
+}
+
+function setLevel(id, lv) {
+  const all = getAll();
+  const m = all.find(x=>x.id===id);
+  if (m) { m.level=parseInt(lv); setAll(all); render(); toast('레벨이 변경되었습니다'); }
+}
+
+function delMember(id) {
+  const all = getAll();
+  const m = all.find(x=>x.id===id);
+  if (!m) return;
+  if (!confirm(m.name+'님을 삭제할까요?')) return;
+  setAll(all.filter(x=>x.id!==id));
+  render();
+  toast('삭제되었습니다');
+}
+
+// Link popup
+function showLink(id) {
+  const m = getAll().find(x=>x.id===id);
+  if (!m) return;
+  currentLink = makeLink(m);
+  document.getElementById('popTitle').textContent = m.name+'님의 접속 링크';
+  document.getElementById('popUrl').textContent = currentLink;
+  document.getElementById('linkPopup').classList.add('open');
+}
+function closePopup() { document.getElementById('linkPopup').classList.remove('open'); }
+function doCopy() {
+  copyText(currentLink);
+  toast('링크가 복사되었습니다');
+  closePopup();
+}
+document.getElementById('linkPopup').addEventListener('click', e => {
+  if (e.target===document.getElementById('linkPopup')) closePopup();
+});
+
+// ── FEEDBACK ITEMS ──
+const ITEMS = {
+  1:[{n:'01',name:'기본 호흡 인지'},{n:'02',name:'윗가슴 통제'},{n:'03',name:'흉곽(갈비뼈) 움직임'},
+     {n:'04',name:'명치(상복부) 텐션 유지'},{n:'05',name:'상/하복부 동시 통제'},{n:'06',name:'골반 기저부 연결'},
+     {n:'07',name:'견갑(날개뼈) 하강'},{n:'08',name:'호흡+어깨 동시 통제'},{n:'09',name:'어깨 고정력 유지'},
+     {n:'10',name:'측면 확장력'},{n:'11',name:'상체 입체적 사용'}],
+  2:[{n:'01',name:'골반 중립 인지'},{n:'02',name:'요추 안정화'},{n:'03',name:'척추 축성 신장'},
+     {n:'04',name:'경추(목) 정렬'},{n:'05',name:'골반-척추 동시 통제'},{n:'06',name:'고관절 분리 움직임'},
+     {n:'07',name:'무릎 방향 통제'},{n:'08',name:'발목 정렬'},{n:'09',name:'발가락 지지력'},{n:'10',name:'내전근-코어 연결'}],
+  3:[{n:'01',name:'발바닥 3점 지지'},{n:'02',name:'발 아치 유지'},{n:'03',name:'지면 밀어내기'},
+     {n:'04',name:'종아리-허벅지 연결'},{n:'05',name:'하체-상체 힘 전달'},{n:'06',name:'서혜부 공간 확보'},
+     {n:'07',name:'어깨 관절 공간'},{n:'08',name:'보상 작용 억제'},{n:'09',name:'관절 가동범위 확장'},{n:'10',name:'전신 연결성 인지'}],
+  4:[{n:'01',name:'말단 에너지 확장'},{n:'02',name:'시선 안정화'},{n:'03',name:'시선 리드 움직임'},
+     {n:'04',name:'공간 인지력'},{n:'05',name:'신경계 통제'},{n:'06',name:'1~3단계 통합 적용'},
+     {n:'07',name:'중력 저항력'},{n:'08',name:'동작의 유연성'},{n:'09',name:'호흡-동작 완벽 조화'},{n:'10',name:'스스로 인지 및 수정'}]
+};
+
+// Feedback sheet
+function openFb(id) {
+  fbMember = getAll().find(x=>x.id===id);
+  if (!fbMember) return;
+  fbGoodSel = null; fbNextSel = null; fbGenUrl = '';
+
+  const lvNames = ['','Awakening','Alignment','Connection','Flow'];
+  document.getElementById('fbTitle').textContent = fbMember.name+'님 피드백 입력 — L'+fbMember.level;
+
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('fbDate').value = today;
+
+  const items = ITEMS[fbMember.level];
+
+  function buildList(containerId, groupName, cls) {
+    document.getElementById(containerId).innerHTML = items.map(item => `
+      <label class="radio-item" onclick="pickItem('${groupName}','${item.n}',this,'${cls}')">
+        <input type="radio" name="${groupName}" value="${item.n}">
+        <span class="radio-circle"></span>
+        <span class="radio-num">${item.n}</span>
+        <span class="radio-name">${item.name}</span>
+      </label>
+    `).join('');
+  }
+
+  buildList('fbGoodList','fbGood','good');
+  buildList('fbNextList','fbNext','next');
+
+  document.getElementById('fbLinkArea').style.display = 'none';
+  document.getElementById('btnCopyFb').style.display = 'none';
+
+  document.getElementById('fbSheet').classList.add('open');
+}
+
+function pickItem(group, val, el, cls) {
+  const list = document.getElementById(group==='fbGood' ? 'fbGoodList' : 'fbNextList');
+  list.querySelectorAll('.radio-item').forEach(x => { x.classList.remove('checked-good','checked-next'); });
+  el.classList.add('checked-'+cls);
+  if (group==='fbGood') fbGoodSel = val;
+  else fbNextSel = val;
+  // Reset generated link
+  document.getElementById('fbLinkArea').style.display = 'none';
+  document.getElementById('btnCopyFb').style.display = 'none';
+  fbGenUrl = '';
+}
+
+function genFbLink() {
+  const date = document.getElementById('fbDate').value;
+  if (!date) { toast('날짜를 선택해주세요'); return; }
+  if (!fbGoodSel) { toast('"오늘 잘했어요" 항목을 선택해주세요'); return; }
+  if (!fbNextSel) { toast('"다음번에 더 신경써봐요" 항목을 선택해주세요'); return; }
+
+  const mToken = makeToken(fbMember);
+  const fbToken = btoa(unescape(encodeURIComponent(JSON.stringify({d:date, g:fbGoodSel, n:fbNextSel}))));
+  const memberBase = new URL('../12step feedback_member/', window.location.href).href;
+  fbGenUrl = memberBase+'?t='+mToken+'&fb='+fbToken;
+
+  document.getElementById('fbLinkBox').textContent = fbGenUrl;
+  document.getElementById('fbLinkArea').style.display = 'block';
+  document.getElementById('btnCopyFb').style.display = 'inline-block';
+}
+
+function copyFbLink() {
+  copyText(fbGenUrl);
+  toast(fbMember.name+'님의 피드백 링크가 복사되었습니다');
+  closeFb();
+}
+
+function closeFb() {
+  document.getElementById('fbSheet').classList.remove('open');
+  fbMember = null;
+}
+document.getElementById('fbSheet').addEventListener('click', e => {
+  if (e.target===document.getElementById('fbSheet')) closeFb();
+});
+
+// ── RENDER ──
+const lvName = ['','Awakening','Alignment','Connection','Flow'];
+const lvBadge = ['','b1','b2','b3','b4'];
+
+function render() {
+  const all = getAll();
+  document.getElementById('cnt').textContent = all.length;
+  const el = document.getElementById('mlist');
+  if (!all.length) {
+    el.innerHTML = '<div class="empty">아직 등록된 회원이 없어요.<br>위 양식에서 회원을 추가해주세요.</div>';
+    return;
+  }
+  el.innerHTML = all.map(m => `
+    <div class="member-item">
+      <div class="avatar">${m.name.charAt(0)}</div>
+      <div class="minfo">
+        <div class="mname">${m.name}</div>
+        <div class="mphone">${maskPhone(m.phone)}</div>
+        <div class="mdate">${m.created} 등록</div>
+      </div>
+      <span class="lv-badge ${lvBadge[m.level]}">L${m.level} · ${lvName[m.level]}</span>
+      <div class="mactions">
+        <select class="lv-sel" onchange="setLevel('${m.id}',this.value)">
+          <option value="1" ${m.level===1?'selected':''}>L1</option>
+          <option value="2" ${m.level===2?'selected':''}>L2</option>
+          <option value="3" ${m.level===3?'selected':''}>L3</option>
+          <option value="4" ${m.level===4?'selected':''}>L4</option>
+        </select>
+        <button class="btn-sm btn-fb" onclick="openFb('${m.id}')">피드백 입력</button>
+        <button class="btn-sm" onclick="showLink('${m.id}')">링크 보기</button>
+        <button class="btn-sm btn-del" onclick="delMember('${m.id}')">삭제</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).catch(() => {
+    const el = document.createElement('textarea');
+    el.value = text; el.style.position='fixed'; el.style.opacity='0';
+    document.body.appendChild(el); el.select(); document.execCommand('copy');
+    document.body.removeChild(el);
+  });
+}
+
+let _tt;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(_tt); _tt = setTimeout(()=>el.classList.remove('show'), 2500);
+}
+
+render();
+</script>
+</body>
+</html>
