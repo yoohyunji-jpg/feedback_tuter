@@ -3,250 +3,264 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hello Body — 관리자</title>
+  <title>Hello Body</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="HB 회원">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --blue: #0071e3; --blue-bg: #e8f2ff;
       --text: #1d1d1f; --text-2: #6e6e73; --text-3: #a1a1a6;
       --border: #d2d2d7; --border-s: #e8e8ed;
-      --bg: #f5f5f7; --card: #ffffff;
       --good: #1d7a45; --good-bg: #f0faf4; --good-l: #d1f0e0;
       --next: #1a56b0; --next-bg: #f0f5ff; --next-l: #c7d9f8;
-      --lv1c: #c04000; --lv1b: #fff0e6;
-      --lv2c: #b45309; --lv2b: #fffbf0;
-      --lv3c: #1d7a45; --lv3b: #f0faf4;
-      --lv4c: #1a56b0; --lv4b: #f0f5ff;
-      --danger: #ff3b30; --danger-bg: #fff0ef;
+      --lv1c:#c04000;--lv1b:#fff0e6; --lv2c:#b45309;--lv2b:#fffbf0;
+      --lv3c:#1d7a45;--lv3b:#f0faf4; --lv4c:#1a56b0;--lv4b:#f0f5ff;
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Apple SD Gothic Neo', sans-serif;
-      background: var(--bg); color: var(--text);
-      min-height: 100vh; -webkit-font-smoothing: antialiased;
+      background: #fff; color: var(--text); min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Topbar */
+    /* ── LOGIN ── */
+    #loginScreen {
+      min-height: 100vh; display: flex;
+      align-items: center; justify-content: center;
+      padding: 24px; background: #f5f5f7;
+    }
+    .login-wrap { width: 100%; max-width: 380px; }
+    .login-logo { text-align: center; margin-bottom: 32px; }
+    .login-logo-text { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+    .login-logo-sub { font-size: 13px; color: var(--text-3); margin-top: 4px; }
+    .login-card {
+      background: white; border-radius: 20px; padding: 32px 28px;
+      border: 1px solid var(--border-s);
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+    }
+    .login-greeting { font-size: 21px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 6px; }
+    .login-sub { font-size: 14px; color: var(--text-2); margin-bottom: 22px; line-height: 1.5; }
+    .lfield { display: flex; flex-direction: column; gap: 6px; margin-bottom: 13px; }
+    .lfield label { font-size: 11px; font-weight: 600; color: var(--text-2); letter-spacing: 0.06em; text-transform: uppercase; }
+    .lfield input {
+      padding: 12px 14px; border: 1.5px solid var(--border);
+      border-radius: 10px; font-size: 15px; font-family: inherit;
+      color: var(--text); outline: none; transition: border-color 0.15s;
+    }
+    .lfield input:focus { border-color: var(--blue); }
+    .lfield input::placeholder { color: var(--text-3); }
+    .login-err {
+      font-size: 13px; color: #ff3b30; display: none;
+      padding: 10px 14px; background: #fff0ef;
+      border-radius: 8px; margin-bottom: 12px;
+    }
+    .btn-login {
+      width: 100%; padding: 14px; background: var(--blue); color: white;
+      border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: opacity 0.15s; margin-top: 4px;
+    }
+    .btn-login:hover { opacity: 0.9; }
+    .login-hint { text-align: center; font-size: 12px; color: var(--text-3); margin-top: 14px; line-height: 1.5; }
+
+    /* ── DASHBOARD ── */
+    #dashboard { display: none; padding-bottom: 60px; }
+
     .topbar {
       position: sticky; top: 0; z-index: 100;
-      background: rgba(255,255,255,0.85);
+      background: rgba(255,255,255,0.88);
       -webkit-backdrop-filter: saturate(180%) blur(20px);
       backdrop-filter: saturate(180%) blur(20px);
       border-bottom: 1px solid var(--border-s);
-      padding: 14px 24px; display: flex; align-items: center; gap: 10px;
+      padding: 12px 20px;
+      display: flex; align-items: center; gap: 10px;
     }
-    .brand { font-size: 17px; font-weight: 700; letter-spacing: -0.5px; }
-    .brand-sep { color: var(--border); }
-    .brand-sub { font-size: 13px; color: var(--text-2); }
+    .brand { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; flex: 1; }
+    .mpill { font-size: 12px; font-weight: 600; color: var(--text-2); }
+    .lv-pill { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 100px; }
+    .lv1p{background:var(--lv1b);color:var(--lv1c);}
+    .lv2p{background:var(--lv2b);color:var(--lv2c);}
+    .lv3p{background:var(--lv3b);color:var(--lv3c);}
+    .lv4p{background:var(--lv4b);color:var(--lv4c);}
+    .btn-logout { font-size: 12px; color: var(--text-3); background: none; border: none; cursor: pointer; font-family: inherit; padding: 4px 8px; }
 
-    .container { max-width: 860px; margin: 0 auto; padding: 32px 24px 80px; }
+    /* Tab bar */
+    .tab-bar { display: flex; border-bottom: 1px solid var(--border-s); padding: 0 20px; background: white; }
+    .tab-btn {
+      padding: 12px 18px; font-size: 14px; font-weight: 500;
+      color: var(--text-3); background: none; border: none;
+      border-bottom: 2px solid transparent; cursor: pointer;
+      font-family: inherit; transition: all 0.15s; margin-bottom: -1px;
+    }
+    .tab-btn.active { color: var(--text); border-bottom-color: var(--blue); font-weight: 600; }
 
-    /* Card */
-    .card {
-      background: var(--card); border-radius: 18px;
-      padding: 28px; margin-bottom: 20px;
+    /* ── CALENDAR TAB ── */
+    #tabCal { max-width: 540px; margin: 0 auto; padding: 24px 20px; }
+
+    /* Feedback received banner */
+    .fb-banner {
+      display: none; background: var(--good-bg);
+      border: 1px solid var(--good-l); border-radius: 14px;
+      padding: 14px 16px; margin-bottom: 20px;
+    }
+    .fb-banner.show { display: block; }
+    .fb-banner-title { font-size: 13px; font-weight: 700; color: var(--good); margin-bottom: 4px; }
+    .fb-banner-text { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+
+    /* Month stats */
+    .month-stats {
+      display: flex; gap: 10px; margin-bottom: 20px;
+    }
+    .stat-card {
+      flex: 1; background: #f9f9fb;
+      border: 1px solid var(--border-s); border-radius: 12px;
+      padding: 12px 14px; text-align: center;
+    }
+    .stat-card .sn { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+    .stat-card .sl { font-size: 11px; color: var(--text-3); margin-top: 2px; letter-spacing: 0.03em; }
+
+    /* Calendar nav */
+    .cal-nav-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .cal-ym { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+    .cal-nav-btns { display: flex; gap: 8px; }
+    .cal-nav {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 1.5px solid var(--border); background: white;
+      color: var(--text); font-size: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    .cal-nav:hover { background: #f5f5f7; }
+
+    .cal-dow { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; margin-bottom: 6px; }
+    .cal-dow-cell { text-align: center; font-size: 11px; font-weight: 600; color: var(--text-3); padding: 4px 0; letter-spacing: 0.04em; }
+
+    .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+    .cal-cell {
+      aspect-ratio: 1;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      border-radius: 10px; font-size: 14px; font-weight: 500;
+      cursor: pointer; transition: all 0.15s;
+      position: relative; color: var(--text);
+      border: 1.5px solid transparent;
+      -webkit-tap-highlight-color: transparent;
+      /* Safari fallback for aspect-ratio */
+      min-height: 40px;
+    }
+    /* Ensure square cells on older Safari */
+    @supports not (aspect-ratio: 1) {
+      .cal-cell { padding-bottom: 100%; height: 0; min-height: 0; }
+      .cal-grid { grid-auto-rows: 1fr; }
+    }
+    .cal-cell.empty { cursor: default; }
+    .cal-cell:not(.empty):not(.session):hover { background: #f5f5f7; }
+    .cal-cell.today { border-color: var(--blue); color: var(--blue); font-weight: 700; }
+    .cal-cell.planned { background: var(--blue-bg); color: var(--blue); border-color: transparent; }
+    .cal-cell.planned.today { border-color: var(--blue); }
+    .cal-cell.rest { background: #f2f2f7; color: var(--text-3); border-color: transparent; }
+    .cal-cell.session { background: var(--good); color: white; border-color: transparent; cursor: pointer; }
+    .cal-cell.session.today { border-color: rgba(255,255,255,0.6); box-shadow: 0 0 0 2px var(--good); }
+    .cal-cell.past:not(.session):not(.planned):not(.rest) { color: var(--text-3); }
+    .cal-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.7); margin-top: 2px; }
+
+    .cal-legend { display: flex; gap: 14px; margin-top: 14px; flex-wrap: wrap; }
+    .leg-it { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-2); }
+    .leg-dot { width: 10px; height: 10px; border-radius: 3px; }
+    .cal-guide { margin-top: 10px; font-size: 12px; color: var(--text-3); text-align: center; line-height: 1.5; }
+
+    /* Monthly report */
+    .report-card {
+      margin-top: 24px; border-radius: 16px;
       border: 1px solid var(--border-s);
-      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      overflow: hidden;
     }
-    .card-title {
-      font-size: 19px; font-weight: 700; letter-spacing: -0.4px;
-      margin-bottom: 22px; display: flex; align-items: center; gap: 10px;
+    .report-header {
+      padding: 16px 20px;
+      display: flex; align-items: center; gap: 10px;
+      background: #f9f9fb; border-bottom: 1px solid var(--border-s);
     }
-    .count-pill {
-      font-size: 12px; font-weight: 600; padding: 2px 9px;
-      border-radius: 100px; background: var(--blue); color: white;
-    }
+    .report-icon { font-size: 18px; }
+    .report-title { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
+    .report-body { padding: 18px 20px; background: white; }
 
-    /* Form */
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-    .fgrp { display: flex; flex-direction: column; gap: 6px; }
-    .fgrp label { font-size: 11px; font-weight: 600; color: var(--text-2); letter-spacing: 0.06em; text-transform: uppercase; }
-    .fgrp input {
-      padding: 11px 14px; border: 1.5px solid var(--border);
-      border-radius: 10px; font-size: 15px; font-family: inherit;
-      color: var(--text); background: white; outline: none; transition: border-color 0.15s;
+    .report-row {
+      display: flex; gap: 14px; margin-bottom: 14px; flex-wrap: wrap;
     }
-    .fgrp input:focus { border-color: var(--blue); }
-    .fgrp input::placeholder { color: var(--text-3); }
+    .report-stat {
+      background: #f9f9fb; border-radius: 10px; padding: 12px 16px;
+      border: 1px solid var(--border-s); flex: 1; min-width: 80px; text-align: center;
+    }
+    .rs-num { font-size: 28px; font-weight: 700; letter-spacing: -1px; }
+    .rs-lbl { font-size: 11px; color: var(--text-3); margin-top: 2px; }
 
-    .level-section { margin-bottom: 16px; }
-    .level-section label { display: block; margin-bottom: 8px; font-size: 11px; font-weight: 600; color: var(--text-2); letter-spacing: 0.06em; text-transform: uppercase; }
-    .level-picker { display: flex; gap: 8px; }
-    .lv-btn {
-      flex: 1; padding: 10px 6px; border: 1.5px solid var(--border);
-      border-radius: 10px; background: white; color: var(--text-2);
-      font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
-      transition: all 0.15s; text-align: center; line-height: 1.3;
+    .report-item {
+      border-radius: 11px; padding: 12px 14px; margin-bottom: 10px;
     }
-    .lv-btn span { display: block; font-size: 10px; font-weight: 400; margin-top: 2px; opacity: 0.7; }
-    .lv-btn:hover { border-color: var(--blue); color: var(--blue); }
-    .lv-btn.active { background: var(--blue); border-color: var(--blue); color: white; }
+    .report-item.good-item { background: var(--good-bg); border: 1px solid var(--good-l); }
+    .report-item.next-item { background: var(--next-bg); border: 1px solid var(--next-l); }
+    .ri-label { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 5px; }
+    .good-item .ri-label { color: var(--good); }
+    .next-item .ri-label { color: var(--next); }
+    .ri-name { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+    .ri-text { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+    .ri-count { font-size: 11px; color: var(--text-3); margin-top: 4px; }
 
-    .btn-add {
-      width: 100%; padding: 14px; background: var(--blue); color: white;
-      border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
-      cursor: pointer; font-family: inherit; transition: opacity 0.15s;
+    .report-recommend {
+      background: linear-gradient(135deg, #f0f5ff 0%, #e8f2ff 100%);
+      border: 1px solid var(--next-l); border-radius: 12px;
+      padding: 14px 16px; margin-top: 14px;
     }
-    .btn-add:hover { opacity: 0.9; }
+    .rr-label { font-size: 11px; font-weight: 700; color: var(--next); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 6px; }
+    .rr-text { font-size: 14px; color: var(--text); line-height: 1.6; font-weight: 500; }
 
-    /* Member item */
-    .member-item {
-      display: flex; align-items: center; gap: 12px;
-      padding: 14px 0; border-bottom: 1px solid var(--border-s);
+    /* ── REPORT TAB ── */
+    #tabReport { max-width: 540px; margin: 0 auto; padding: 24px 20px; display: none; }
+    .report-month-nav {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
     }
-    .member-item:last-child { border-bottom: none; padding-bottom: 0; }
-    .member-item:first-child { padding-top: 0; }
-    .avatar {
-      width: 42px; height: 42px; border-radius: 50%;
-      background: var(--blue-bg); color: var(--blue);
-      font-size: 16px; font-weight: 700;
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    }
-    .minfo { flex: 1; min-width: 0; }
-    .mname { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
-    .mphone { font-size: 12px; color: var(--text-2); margin-top: 1px; }
-    .mdate { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+    .rm-label { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; flex: 1; }
+    .no-data { text-align: center; padding: 60px 20px; color: var(--text-3); font-size: 14px; }
 
-    .lv-badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 100px; white-space: nowrap; flex-shrink: 0; }
-    .b1 { background: var(--lv1b); color: var(--lv1c); }
-    .b2 { background: var(--lv2b); color: var(--lv2c); }
-    .b3 { background: var(--lv3b); color: var(--lv3c); }
-    .b4 { background: var(--lv4b); color: var(--lv4c); }
-
-    .mactions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; flex-wrap: wrap; }
-    .lv-sel {
-      padding: 7px 10px; border: 1.5px solid var(--border);
-      border-radius: 8px; font-size: 12px; font-weight: 600;
-      font-family: inherit; color: var(--text); background: white; cursor: pointer; outline: none;
-    }
-    .lv-sel:focus { border-color: var(--blue); }
-    .btn-sm {
-      padding: 7px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;
-      cursor: pointer; border: 1.5px solid var(--border); background: white;
-      color: var(--text-2); font-family: inherit; transition: all 0.15s; white-space: nowrap;
-    }
-    .btn-sm:hover { border-color: var(--blue); color: var(--blue); }
-    .btn-fb { background: var(--good-bg); border-color: transparent; color: var(--good); }
-    .btn-fb:hover { border-color: var(--good); background: var(--good-bg); color: var(--good); }
-    .btn-del { background: var(--danger-bg); border-color: transparent; color: var(--danger); }
-    .btn-del:hover { border-color: var(--danger); background: var(--danger-bg); }
-
-    /* Link popup */
-    .popup {
+    /* ── SESSION POPUP ── */
+    .sess-overlay {
       display: none; position: fixed; top: 0; right: 0; bottom: 0; left: 0;
       background: rgba(0,0,0,0.3);
       -webkit-backdrop-filter: blur(4px);
       backdrop-filter: blur(4px);
-      z-index: 200; align-items: center; justify-content: center; padding: 24px;
+      z-index: 200; align-items: flex-end; justify-content: center;
     }
-    .popup.open { display: flex; }
-    .popup-box {
-      background: white; border-radius: 20px; padding: 28px;
-      width: 100%; max-width: 500px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
-    }
-    .popup-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
-    .popup-desc { font-size: 13px; color: var(--text-2); margin-bottom: 18px; }
-    .popup-url {
-      background: #f5f5f7; border-radius: 10px; padding: 12px 14px;
-      font-size: 12px; color: var(--text-2); word-break: break-all; line-height: 1.6;
-      border: 1px solid var(--border-s); margin-bottom: 14px;
-    }
-    .popup-btns { display: flex; gap: 10px; }
-    .btn-copy { flex: 1; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
-    .btn-close { padding: 12px 20px; border: 1.5px solid var(--border); background: white; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; color: var(--text-2); }
-
-    /* Feedback sheet */
-    .fb-sheet {
-      display: none; position: fixed; top: 0; right: 0; bottom: 0; left: 0;
-      background: rgba(0,0,0,0.35);
-      -webkit-backdrop-filter: blur(4px);
-      backdrop-filter: blur(4px);
-      z-index: 210; align-items: flex-end; justify-content: center;
-    }
-    .fb-sheet.open { display: flex; }
-    .fb-inner {
+    .sess-overlay.open { display: flex; }
+    .sess-box {
       background: white; border-radius: 24px 24px 0 0;
-      width: 100%; max-width: 620px; max-height: 92vh;
-      overflow-y: auto; padding: 24px 24px 40px;
+      width: 100%; max-width: 500px; padding: 24px 24px 40px;
       box-shadow: 0 -8px 40px rgba(0,0,0,0.15);
     }
-    .fb-handle {
-      width: 36px; height: 4px; background: var(--border);
-      border-radius: 2px; margin: 0 auto 20px;
+    .sess-handle { width: 36px; height: 4px; background: var(--border-s); border-radius: 2px; margin: 0 auto 16px; }
+    .sess-date { font-size: 13px; color: var(--text-3); margin-bottom: 16px; font-weight: 500; }
+    .sess-item {
+      border-radius: 12px; padding: 14px 16px; margin-bottom: 10px;
     }
-    .fb-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
-    .fb-title { font-size: 19px; font-weight: 700; letter-spacing: -0.4px; }
-    .fb-close {
-      width: 30px; height: 30px; border-radius: 50%;
-      background: var(--bg); border: none; cursor: pointer;
-      font-size: 14px; color: var(--text-2); display: flex; align-items: center; justify-content: center;
-    }
-    .fb-date-row { margin-bottom: 20px; }
-    .fb-date-row label { display: block; font-size: 11px; font-weight: 600; color: var(--text-2); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
-    .fb-date-row input[type="date"] {
-      padding: 10px 14px; border: 1.5px solid var(--border);
-      border-radius: 10px; font-size: 15px; font-family: inherit;
-      color: var(--text); background: white; outline: none; transition: border-color 0.15s;
-    }
-    .fb-date-row input[type="date"]:focus { border-color: var(--blue); }
-
-    .fb-section { margin-bottom: 20px; }
-    .fb-sec-label {
-      font-size: 13px; font-weight: 700; padding: 6px 12px;
-      border-radius: 8px; margin-bottom: 10px; display: inline-block;
-    }
-    .fb-sec-label.good { background: var(--good-l); color: var(--good); }
-    .fb-sec-label.next { background: var(--next-l); color: var(--next); }
-
-    .radio-list { display: flex; flex-direction: column; gap: 6px; }
-    .radio-item {
-      display: flex; align-items: center; gap: 12px;
-      padding: 12px 14px; border-radius: 11px;
-      cursor: pointer; border: 1.5px solid var(--border-s);
-      transition: all 0.15s; -webkit-user-select: none; user-select: none;
-    }
-    .radio-item:hover { border-color: var(--border); background: #fafafa; }
-    .radio-item input[type="radio"] { display: none; }
-    .radio-circle {
-      width: 18px; height: 18px; border-radius: 50%;
-      border: 1.5px solid var(--border); flex-shrink: 0;
-      transition: all 0.15s; display: flex; align-items: center; justify-content: center;
-    }
-    .radio-item.checked-good .radio-circle { border-color: var(--good); background: var(--good); }
-    .radio-item.checked-next .radio-circle { border-color: var(--next); background: var(--next); }
-    .radio-circle::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: white; opacity: 0; }
-    .radio-item.checked-good .radio-circle::after,
-    .radio-item.checked-next .radio-circle::after { opacity: 1; }
-    .radio-item.checked-good { border-color: rgba(29,122,69,0.35); background: var(--good-bg); }
-    .radio-item.checked-next { border-color: rgba(26,86,176,0.35); background: var(--next-bg); }
-    .radio-num { font-size: 11px; font-weight: 700; color: var(--text-3); min-width: 22px; }
-    .radio-name { font-size: 14px; color: var(--text); font-weight: 500; }
-
-    .fb-link-area { margin-bottom: 14px; display: none; }
-    .fb-link-box {
-      background: #f5f5f7; border-radius: 10px; padding: 12px 14px;
-      font-size: 12px; color: var(--text-2); word-break: break-all;
-      line-height: 1.6; border: 1px solid var(--border-s);
-    }
-    .fb-actions { display: flex; gap: 10px; }
-    .btn-gen {
-      flex: 1; padding: 14px; background: var(--good); color: white;
+    .sess-item.good { background: var(--good-bg); border: 1px solid var(--good-l); }
+    .sess-item.next { background: var(--next-bg); border: 1px solid var(--next-l); }
+    .sess-label { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 6px; }
+    .sess-item.good .sess-label { color: var(--good); }
+    .sess-item.next .sess-label { color: var(--next); }
+    .sess-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.3px; }
+    .sess-text { font-size: 13px; color: var(--text-2); line-height: 1.55; }
+    .sess-close {
+      width: 100%; padding: 13px; background: #f5f5f7;
       border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
-      cursor: pointer; font-family: inherit; transition: opacity 0.15s;
+      cursor: pointer; font-family: inherit; color: var(--text-2);
+      margin-top: 6px;
     }
-    .btn-gen:hover { opacity: 0.9; }
-    .btn-copy-fb {
-      padding: 14px 18px; background: var(--blue); color: white;
-      border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
-      cursor: pointer; font-family: inherit; display: none;
-    }
-
-    /* Empty */
-    .empty { text-align: center; padding: 40px 20px; color: var(--text-3); font-size: 14px; }
 
     /* Toast */
     .toast {
-      position: fixed; bottom: 28px; left: 50%;
+      position: fixed; bottom: 24px; left: 50%;
       transform: translateX(-50%) translateY(8px);
       background: var(--text); color: white;
       font-size: 13px; font-weight: 500; padding: 10px 22px;
@@ -255,343 +269,545 @@
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    @media (max-width: 600px) {
-      .form-row { grid-template-columns: 1fr; }
-      .container { padding: 20px 16px 60px; }
-      .card { padding: 20px; }
-      .lv-btn span { display: none; }
-      .fb-inner { padding: 20px 16px 40px; }
+    @media (max-width: 480px) {
+      #tabCal, #tabReport { padding: 18px 14px; }
+      .cal-cell { font-size: 13px; border-radius: 8px; }
     }
   </style>
 </head>
 <body>
 
-<div class="topbar">
-  <span class="brand">Hello Body</span>
-  <span class="brand-sep">·</span>
-  <span class="brand-sub">관리자 패널</span>
-</div>
-
-<div class="container">
-  <!-- Add member -->
-  <div class="card">
-    <div class="card-title">회원 등록</div>
-    <div class="form-row">
-      <div class="fgrp">
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-wrap">
+    <div class="login-logo">
+      <div class="login-logo-text">Hello Body</div>
+      <div class="login-logo-sub">회원 전용 페이지</div>
+    </div>
+    <div class="login-card">
+      <div class="login-greeting" id="loginGreeting">안녕하세요!</div>
+      <div class="login-sub">이름과 전화번호를 입력해서<br>내 대시보드에 접속하세요.</div>
+      <div class="lfield">
         <label>이름</label>
-        <input type="text" id="inp-name" placeholder="홍길동" autocomplete="off">
+        <input type="text" id="inp-name" placeholder="이름을 입력하세요" autocomplete="name">
       </div>
-      <div class="fgrp">
+      <div class="lfield">
         <label>전화번호</label>
-        <input type="tel" id="inp-phone" placeholder="01012345678" autocomplete="off">
+        <input type="tel" id="inp-phone" placeholder="01012345678 (숫자 11자리)" autocomplete="tel">
       </div>
-    </div>
-    <div class="level-section">
-      <label>레벨 지정</label>
-      <div class="level-picker">
-        <button class="lv-btn active" data-l="1">L1<span>Awakening</span></button>
-        <button class="lv-btn" data-l="2">L2<span>Alignment</span></button>
-        <button class="lv-btn" data-l="3">L3<span>Connection</span></button>
-        <button class="lv-btn" data-l="4">L4<span>Flow</span></button>
-      </div>
-    </div>
-    <button class="btn-add" onclick="addMember()">회원 등록하기</button>
-  </div>
-
-  <!-- Member list -->
-  <div class="card">
-    <div class="card-title">
-      등록 회원
-      <span class="count-pill" id="cnt">0</span>
-    </div>
-    <div id="mlist"></div>
-  </div>
-</div>
-
-<!-- Link popup -->
-<div class="popup" id="linkPopup">
-  <div class="popup-box">
-    <div class="popup-title" id="popTitle"></div>
-    <div class="popup-desc">아래 링크를 복사해서 회원에게 보내주세요.<br>회원은 이 링크로 자신의 대시보드에 접속할 수 있어요.</div>
-    <div class="popup-url" id="popUrl"></div>
-    <div class="popup-btns">
-      <button class="btn-copy" onclick="doCopy()">링크 복사</button>
-      <button class="btn-close" onclick="closePopup()">닫기</button>
+      <div class="login-err" id="loginErr">이름 또는 전화번호가 일치하지 않아요.</div>
+      <button class="btn-login" onclick="doLogin()">로그인</button>
+      <div class="login-hint">강사님이 보내준 링크로 접속하지 않으셨나요?<br>링크를 다시 확인해주세요.</div>
     </div>
   </div>
 </div>
 
-<!-- Feedback sheet -->
-<div class="fb-sheet" id="fbSheet">
-  <div class="fb-inner">
-    <div class="fb-handle"></div>
-    <div class="fb-head">
-      <div class="fb-title" id="fbTitle">피드백 입력</div>
-      <button class="fb-close" onclick="closeFb()">✕</button>
-    </div>
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="topbar">
+    <div class="brand">Hello Body</div>
+    <div class="mpill" id="topName"></div>
+    <div class="lv-pill" id="topLevel"></div>
+    <button class="btn-logout" onclick="doLogout()">로그아웃</button>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tbCal" onclick="switchTab('cal')">운동 캘린더</button>
+    <button class="tab-btn" id="tbRep" onclick="switchTab('report')">월별 리포트</button>
+  </div>
 
-    <div class="fb-date-row">
-      <label>수업 날짜</label>
-      <input type="date" id="fbDate">
+  <!-- Calendar tab -->
+  <div id="tabCal">
+    <div class="fb-banner" id="fbBanner">
+      <div class="fb-banner-title">피드백이 도착했어요!</div>
+      <div class="fb-banner-text" id="fbBannerText"></div>
     </div>
+    <div class="month-stats" id="monthStats"></div>
+    <div class="cal-nav-row">
+      <div class="cal-ym" id="calYM"></div>
+      <div class="cal-nav-btns">
+        <button class="cal-nav" onclick="calMove(-1)">&#8249;</button>
+        <button class="cal-nav" onclick="calMove(1)">&#8250;</button>
+      </div>
+    </div>
+    <div class="cal-dow">
+      <div class="cal-dow-cell">일</div><div class="cal-dow-cell">월</div>
+      <div class="cal-dow-cell">화</div><div class="cal-dow-cell">수</div>
+      <div class="cal-dow-cell">목</div><div class="cal-dow-cell">금</div>
+      <div class="cal-dow-cell">토</div>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-legend">
+      <div class="leg-it"><div class="leg-dot" style="background:var(--good)"></div>피드백 받은 날</div>
+      <div class="leg-it"><div class="leg-dot" style="background:var(--blue-bg);border:1.5px solid var(--blue)"></div>운동 예정</div>
+      <div class="leg-it"><div class="leg-dot" style="background:#f2f2f7"></div>휴식</div>
+    </div>
+    <div class="cal-guide">피드백 받은 날(초록)을 탭하면 내용을 볼 수 있어요.<br>다른 날짜를 탭하면 예정 → 휴식 → 초기화 순서로 표시돼요.</div>
+    <div id="reportInCal"></div>
+  </div>
 
-    <div class="fb-section">
-      <div class="fb-sec-label good">오늘 잘했어요 — 1개 선택</div>
-      <div class="radio-list" id="fbGoodList"></div>
+  <!-- Report tab -->
+  <div id="tabReport">
+    <div class="report-month-nav">
+      <button class="cal-nav" onclick="repMove(-1)">&#8249;</button>
+      <div class="rm-label" id="repYM"></div>
+      <button class="cal-nav" onclick="repMove(1)">&#8250;</button>
     </div>
+    <div id="repContent"></div>
+  </div>
+</div>
 
-    <div class="fb-section">
-      <div class="fb-sec-label next">다음번에 더 신경써봐요 — 1개 선택</div>
-      <div class="radio-list" id="fbNextList"></div>
+<!-- Session popup -->
+<div class="sess-overlay" id="sessOverlay">
+  <div class="sess-box">
+    <div class="sess-handle"></div>
+    <div class="sess-date" id="sessDate"></div>
+    <div class="sess-item good" id="sessGood">
+      <div class="sess-label">오늘 잘했어요</div>
+      <div class="sess-name" id="sessGoodName"></div>
+      <div class="sess-text" id="sessGoodText"></div>
     </div>
-
-    <div class="fb-link-area" id="fbLinkArea">
-      <div style="font-size:11px;font-weight:600;color:var(--text-2);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;">생성된 피드백 링크</div>
-      <div class="fb-link-box" id="fbLinkBox"></div>
+    <div class="sess-item next" id="sessNext">
+      <div class="sess-label">다음번에 더 신경써봐요</div>
+      <div class="sess-name" id="sessNextName"></div>
+      <div class="sess-text" id="sessNextText"></div>
     </div>
-
-    <div class="fb-actions">
-      <button class="btn-gen" onclick="genFbLink()">피드백 링크 생성</button>
-      <button class="btn-copy-fb" id="btnCopyFb" onclick="copyFbLink()">복사</button>
-    </div>
+    <button class="sess-close" onclick="closeSess()">닫기</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const DB = 'hb_members';
-let selLevel = 1;
-let currentLink = '';
-let fbMember = null;
-let fbGenUrl = '';
-let fbGoodSel = null;
-let fbNextSel = null;
-
-// Level picker (add member)
-document.querySelectorAll('.lv-btn').forEach(b => {
-  b.addEventListener('click', () => {
-    document.querySelectorAll('.lv-btn').forEach(x => x.classList.remove('active'));
-    b.classList.add('active');
-    selLevel = parseInt(b.dataset.l);
-  });
-});
-
-function getAll() { try { return JSON.parse(localStorage.getItem(DB)||'[]'); } catch { return []; } }
-function setAll(a) { localStorage.setItem(DB, JSON.stringify(a)); }
-function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-function fmtPhone(p) {
-  p = p.replace(/\D/g,'');
-  if (p.length===11) return p.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
-  if (p.length===10) return p.replace(/(\d{3})(\d{3,4})(\d{4})/, '$1-$2-$3');
-  return p;
-}
-function maskPhone(p) {
-  const d = p.replace(/\D/g,'');
-  return d.length>=8 ? d.slice(0,3)+'-****-'+d.slice(-4) : p;
-}
-function makeLink(m) {
-  const memberBase = 'https://feedback-member.vercel.app/';
-  const phone = m.phone.replace(/\D/g,'');
-  return memberBase + '?p=' + phone + '&l=' + m.level;
-}
-
-function addMember() {
-  const name = document.getElementById('inp-name').value.trim();
-  const raw = document.getElementById('inp-phone').value.replace(/\D/g,'');
-  if (!name) { toast('이름을 입력해주세요'); return; }
-  if (raw.length<8) { toast('올바른 전화번호를 입력해주세요'); return; }
-  const all = getAll();
-  const m = { id:uid(), name, phone:fmtPhone(raw), level:selLevel, created:new Date().toISOString().slice(0,10) };
-  all.push(m);
-  setAll(all);
-  document.getElementById('inp-name').value = '';
-  document.getElementById('inp-phone').value = '';
-  render();
-  toast(name+'님이 등록되었습니다');
-}
-
-function setLevel(id, lv) {
-  const all = getAll();
-  const m = all.find(x=>x.id===id);
-  if (m) { m.level=parseInt(lv); setAll(all); render(); toast('레벨이 변경되었습니다'); }
-}
-
-function delMember(id) {
-  const all = getAll();
-  const m = all.find(x=>x.id===id);
-  if (!m) return;
-  if (!confirm(m.name+'님을 삭제할까요?')) return;
-  setAll(all.filter(x=>x.id!==id));
-  render();
-  toast('삭제되었습니다');
-}
-
-// Link popup
-function showLink(id) {
-  const m = getAll().find(x=>x.id===id);
-  if (!m) return;
-  currentLink = makeLink(m);
-  document.getElementById('popTitle').textContent = m.name+'님의 접속 링크';
-  document.getElementById('popUrl').textContent = currentLink;
-  document.getElementById('linkPopup').classList.add('open');
-}
-function closePopup() { document.getElementById('linkPopup').classList.remove('open'); }
-function doCopy() {
-  copyText(currentLink);
-  toast('링크가 복사되었습니다');
-  closePopup();
-}
-document.getElementById('linkPopup').addEventListener('click', e => {
-  if (e.target===document.getElementById('linkPopup')) closePopup();
-});
-
-// ── FEEDBACK ITEMS ──
-const ITEMS = {
-  1:[{n:'01',name:'기본 호흡 인지'},{n:'02',name:'윗가슴 통제'},{n:'03',name:'흉곽(갈비뼈) 움직임'},
-     {n:'04',name:'명치(상복부) 텐션 유지'},{n:'05',name:'상/하복부 동시 통제'},{n:'06',name:'골반 기저부 연결'},
-     {n:'07',name:'견갑(날개뼈) 하강'},{n:'08',name:'호흡+어깨 동시 통제'},{n:'09',name:'어깨 고정력 유지'},
-     {n:'10',name:'측면 확장력'},{n:'11',name:'상체 입체적 사용'}],
-  2:[{n:'01',name:'골반 중립 인지'},{n:'02',name:'요추 안정화'},{n:'03',name:'척추 축성 신장'},
-     {n:'04',name:'경추(목) 정렬'},{n:'05',name:'골반-척추 동시 통제'},{n:'06',name:'고관절 분리 움직임'},
-     {n:'07',name:'무릎 방향 통제'},{n:'08',name:'발목 정렬'},{n:'09',name:'발가락 지지력'},{n:'10',name:'내전근-코어 연결'}],
-  3:[{n:'01',name:'발바닥 3점 지지'},{n:'02',name:'발 아치 유지'},{n:'03',name:'지면 밀어내기'},
-     {n:'04',name:'종아리-허벅지 연결'},{n:'05',name:'하체-상체 힘 전달'},{n:'06',name:'서혜부 공간 확보'},
-     {n:'07',name:'어깨 관절 공간'},{n:'08',name:'보상 작용 억제'},{n:'09',name:'관절 가동범위 확장'},{n:'10',name:'전신 연결성 인지'}],
-  4:[{n:'01',name:'말단 에너지 확장'},{n:'02',name:'시선 안정화'},{n:'03',name:'시선 리드 움직임'},
-     {n:'04',name:'공간 인지력'},{n:'05',name:'신경계 통제'},{n:'06',name:'1~3단계 통합 적용'},
-     {n:'07',name:'중력 저항력'},{n:'08',name:'동작의 유연성'},{n:'09',name:'호흡-동작 완벽 조화'},{n:'10',name:'스스로 인지 및 수정'}]
+// ── LEVEL DATA ──────────────────────────────────────────────────
+const DATA = {
+  1:{name:"LEVEL 1",sub:"AWAKENING — 몸의 감각 깨우기",sections:[
+    {title:"A. 기초 호흡 및 코어",items:[
+      {n:"01",t:"<strong>기본 호흡 인지:</strong> 코로 들이마시고 입으로 내쉬는 호흡 패턴을 정확히 수행하는가?"},
+      {n:"02",t:"<strong>윗가슴 통제:</strong> 숨을 들이마실 때 어깨가 으쓱하고 올라가거나 윗가슴이 과도하게 들리지 않는가?"},
+      {n:"03",t:"<strong>흉곽(갈비뼈) 움직임:</strong> 숨을 들이마실 때 갈비뼈를 좌우(양옆)로 벌리고, 내쉴 때 중앙으로 단단하게 모아낼 수 있는가?"},
+      {n:"04",t:"<strong>명치(상복부) 텐션 유지:</strong> 갈비뼈를 조여내며 세팅한 명치의 힘이, 다른 동작을 수행하는 내내 풀리지 않고 유지되는가?"},
+      {n:"05",t:"<strong>상/하복부 동시 통제:</strong> 아랫배를 위로 지퍼 잠그듯 끌어당기며, 명치 힘과 아랫배 힘을 동시에 조절할 수 있는가?"},
+      {n:"06",t:"<strong>골반 기저부 연결:</strong> 양쪽 엉덩이 좌골(뼈)을 안으로 쫀쫀하게 모아주며, 코어 전체를 위로 띄워 올리는 감각을 인지하는가?"}
+    ]},
+    {title:"B. 어깨 안정화 및 상체",items:[
+      {n:"07",t:"<strong>견갑(날개뼈) 하강:</strong> 상완(위팔뼈)을 바깥으로 살짝 회전(로테이션)시키며 날개뼈를 밑으로 쭈욱 끌어내릴 수 있는가?"},
+      {n:"08",t:"<strong>호흡+어깨 동시 통제:</strong> 어깨를 끌어내린 상태에서 'A' 파트의 코어 호흡을 풀리지 않고 동시에 수행할 수 있는가?"},
+      {n:"09",t:"<strong>어깨 고정력 유지:</strong> 한 번 밑으로 세팅한 어깨가, 팔이나 몸통을 움직이며 운동하는 내내 으쓱거리지 않고 고정되는가?"},
+      {n:"10",t:"<strong>측면 확장력:</strong> 양쪽 어깨를 귀에서 멀어지게 두며, 좌우 양옆으로 길게 뽑아내는(늘리는) 감각을 인지하는가?"},
+      {n:"11",t:"<strong>상체 입체적 사용:</strong> 앞가슴과 윗등을 위아래로 길게 세우고, 동시에 좌우 옆으로도 넓게 확장하며 쓸 수 있는가?"}
+    ]}
+  ]},
+  2:{name:"LEVEL 2",sub:"ALIGNMENT — 뼈대 바로 세우기",sections:[
+    {title:"A. 골반 및 척추 정렬",items:[
+      {n:"01",t:"<strong>골반 중립 인지:</strong> 골반 앞쪽 뼈(ASIS)와 치골(Pubis)이 바닥과 평행을 이루는 중립 위치를 스스로 찾을 수 있는가?"},
+      {n:"02",t:"<strong>요추 안정화:</strong> 동작 수행 중 허리가 과도하게 꺾이거나 바닥에서 뜨지 않고 안정적으로 지지되는가?"},
+      {n:"03",t:"<strong>척추 축성 신장:</strong> 꼬리뼈부터 정수리까지 척추 사이사이 공간을 늘리며 위아래로 길어지는 감각을 인지하는가?"},
+      {n:"04",t:"<strong>경추(목) 정렬:</strong> 턱이 들리거나 거북목이 되지 않고, 뒷목을 길게 뽑아내며 바른 목 정렬을 유지하는가?"},
+      {n:"05",t:"<strong>골반-척추 동시 통제:</strong> 팔다리를 움직일 때 골반의 중립과 척추의 신장이 무너지지 않고 동시에 유지되는가?"}
+    ]},
+    {title:"B. 하지 정렬 및 연결",items:[
+      {n:"06",t:"<strong>고관절 분리 움직임:</strong> 골반이 따라 움직이지 않고, 고관절에서만 다리뼈를 독립적으로 부드럽게 움직일 수 있는가?"},
+      {n:"07",t:"<strong>무릎 방향 통제:</strong> 스쿼트나 런지 등 다리를 굽히는 동작에서 무릎이 두 번째 발가락 방향을 정확히 향하는가?"},
+      {n:"08",t:"<strong>발목 정렬:</strong> 발목이 안쪽이나 바깥쪽으로 무너지지 않고, 정강이뼈와 일직선을 이루며 바르게 정렬되는가?"},
+      {n:"09",t:"<strong>발가락 지지력:</strong> 엄지발가락이 바닥에서 뜨지 않고, 발가락 밑 통통한 부분으로 지면을 단단히 누를 수 있는가?"},
+      {n:"10",t:"<strong>내전근-코어 연결:</strong> 다리 안쪽 근육(내전근)의 힘이 골반 기저부를 거쳐 코어까지 하나로 연결되는 것을 인지하는가?"}
+    ]}
+  ]},
+  3:{name:"LEVEL 3",sub:"CONNECTION — 뿌리 내리고 연결하기",sections:[
+    {title:"A. 지면 반발력 및 하체",items:[
+      {n:"01",t:"<strong>발바닥 3점 지지:</strong> 발바닥의 세 점(엄지, 새끼, 뒤꿈치)으로 체중을 고르게 분산하여 바닥을 지지하는가?"},
+      {n:"02",t:"<strong>발 아치 유지:</strong> 동작 수행 중 발의 아치가 무너지지 않고 가볍게 들려 있는 상태를 유지할 수 있는가?"},
+      {n:"03",t:"<strong>지면 밀어내기:</strong> 발바닥으로 지면을 강하게 밀어내는 반발력을 사용하여 동작의 에너지를 끌어올리는가?"},
+      {n:"04",t:"<strong>종아리-허벅지 연결:</strong> 발 아치를 들면서 종아리를 안쪽으로 회전시키고, 허벅지까지 힘이 연결되는 것을 인지하는가?"},
+      {n:"05",t:"<strong>하체-상체 힘 전달:</strong> 하체에서 만들어진 지면 반발력이 코어를 지나 상체까지 끊기지 않고 전달되는가?"}
+    ]},
+    {title:"B. 관절 공간 및 보상 통제",items:[
+      {n:"06",t:"<strong>서혜부 공간 확보:</strong> 다리를 들어 올리거나 접을 때 서혜부(사타구니) 앞쪽이 찝히지 않고 공간이 유지되는가?"},
+      {n:"07",t:"<strong>어깨 관절 공간:</strong> 팔을 위로 들거나 돌릴 때 어깨 관절이 찝히지 않고 부드럽게 회전할 수 있는가?"},
+      {n:"08",t:"<strong>보상 작용 억제:</strong> 특정 근육이 약할 때 다른 근육(예: 승모근, 허리)을 끌어다 쓰는 보상 작용 없이 동작을 수행하는가?"},
+      {n:"09",t:"<strong>관절 가동범위 확장:</strong> 통증이나 찝힘 없이 각 관절의 정상적인 가동범위를 끝까지 부드럽게 사용할 수 있는가?"},
+      {n:"10",t:"<strong>전신 연결성 인지:</strong> 손끝부터 발끝까지 몸의 모든 부분이 유기적으로 연결되어 움직이는 것을 인지하는가?"}
+    ]}
+  ]},
+  4:{name:"LEVEL 4",sub:"FLOW & MASTERY — 자유로운 조절",sections:[
+    {title:"A. 에너지 확장 및 시선",items:[
+      {n:"01",t:"<strong>말단 에너지 확장:</strong> 손끝과 발끝 너머 보이지 않는 공간까지 에너지를 길게 뻗어내며 동작을 수행하는가?"},
+      {n:"02",t:"<strong>시선 안정화:</strong> 동작 중 시선이 불안정하게 흔들리지 않고, 한 곳에 집중하여 몸의 중심을 잡는가?"},
+      {n:"03",t:"<strong>시선 리드 움직임:</strong> 동작이 향하는 방향으로 시선이 먼저 이동하고, 몸이 자연스럽게 그 방향을 따라가는가?"},
+      {n:"04",t:"<strong>공간 인지력:</strong> 내 몸이 차지하는 공간과 주변 환경을 인지하며, 동작의 크기와 방향을 자유롭게 조절하는가?"},
+      {n:"05",t:"<strong>신경계 통제:</strong> 단순한 근육의 수축을 넘어, 몸의 미세한 떨림이나 불균형까지 신경계로 통제하며 집중하는가?"}
+    ]},
+    {title:"B. 전신 통합 및 플로우",items:[
+      {n:"06",t:"<strong>1~3단계 통합 적용:</strong> 호흡, 정렬, 연결 등 이전 단계의 모든 요소가 하나의 동작 안에서 자연스럽게 발현되는가?"},
+      {n:"07",t:"<strong>중력 저항력:</strong> 중력에 무너지지 않고, 속근육을 사용하여 몸을 위로 가볍게 띄워 올리는 힘을 유지하는가?"},
+      {n:"08",t:"<strong>동작의 유연성:</strong> 동작과 동작 사이가 끊기지 않고, 물 흐르듯 부드럽고 자연스럽게 이어지는가?"},
+      {n:"09",t:"<strong>호흡-동작 완벽 조화:</strong> 호흡의 리듬과 동작의 템포가 완벽하게 일치하며, 힘든 동작에서도 호흡이 멈추지 않는가?"},
+      {n:"10",t:"<strong>스스로 인지 및 수정:</strong> 강사의 큐잉 없이도 스스로 몸의 불균형을 인지하고, 즉각적으로 바른 자세로 수정할 수 있는가?"}
+    ]}
+  ]}
 };
 
-// Feedback sheet
-function openFb(id) {
-  fbMember = getAll().find(x=>x.id===id);
-  if (!fbMember) return;
-  fbGoodSel = null; fbNextSel = null; fbGenUrl = '';
-
-  const lvNames = ['','Awakening','Alignment','Connection','Flow'];
-  document.getElementById('fbTitle').textContent = fbMember.name+'님 피드백 입력 — L'+fbMember.level;
-
-  const today = new Date().toISOString().slice(0,10);
-  document.getElementById('fbDate').value = today;
-
-  const items = ITEMS[fbMember.level];
-
-  function buildList(containerId, groupName, cls) {
-    document.getElementById(containerId).innerHTML = items.map(item => `
-      <label class="radio-item" onclick="pickItem('${groupName}','${item.n}',this,'${cls}')">
-        <input type="radio" name="${groupName}" value="${item.n}">
-        <span class="radio-circle"></span>
-        <span class="radio-num">${item.n}</span>
-        <span class="radio-name">${item.name}</span>
-      </label>
-    `).join('');
+// ── ITEM LOOKUP ─────────────────────────────────────────────────
+function getItem(level, num) {
+  for (const sec of DATA[level].sections) {
+    const item = sec.items.find(i => i.n === num);
+    if (item) {
+      const nameM = item.t.match(/<strong>([^:]+):/);
+      const name = nameM ? nameM[1].trim() : '항목 ' + num;
+      const text = item.t.replace(/<[^>]+>/g, '').replace(/^[^:]+:\s*/, '');
+      return { name, text };
+    }
   }
-
-  buildList('fbGoodList','fbGood','good');
-  buildList('fbNextList','fbNext','next');
-
-  document.getElementById('fbLinkArea').style.display = 'none';
-  document.getElementById('btnCopyFb').style.display = 'none';
-
-  document.getElementById('fbSheet').classList.add('open');
+  return { name: '항목 ' + num, text: '' };
 }
 
-function pickItem(group, val, el, cls) {
-  const list = document.getElementById(group==='fbGood' ? 'fbGoodList' : 'fbNextList');
-  list.querySelectorAll('.radio-item').forEach(x => { x.classList.remove('checked-good','checked-next'); });
-  el.classList.add('checked-'+cls);
-  if (group==='fbGood') fbGoodSel = val;
-  else fbNextSel = val;
-  // Reset generated link
-  document.getElementById('fbLinkArea').style.display = 'none';
-  document.getElementById('btnCopyFb').style.display = 'none';
-  fbGenUrl = '';
+// ── STATE ───────────────────────────────────────────────────────
+let member = null;
+let sessions = {};  // { 'YYYY-MM-DD': { good:'03', next:'07' } }
+let calMark = {};   // { 'YYYY-MM-DD': 'p'|'r' }
+let calYear, calMonth;
+let repYear, repMonth;
+const today = new Date();
+const todayKey = fmtDate(today.getFullYear(), today.getMonth(), today.getDate());
+
+function fmtDate(y, m, d) {
+  return y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
 }
 
-function genFbLink() {
-  const date = document.getElementById('fbDate').value;
-  if (!date) { toast('날짜를 선택해주세요'); return; }
-  if (!fbGoodSel) { toast('"오늘 잘했어요" 항목을 선택해주세요'); return; }
-  if (!fbNextSel) { toast('"다음번에 더 신경써봐요" 항목을 선택해주세요'); return; }
-
-  const phone = fbMember.phone.replace(/\D/g,'');
-  const fbToken = btoa(JSON.stringify({d:date, g:fbGoodSel, n:fbNextSel}));
-  const memberBase = 'https://feedback-member.vercel.app/';
-  fbGenUrl = memberBase+'?p='+phone+'&l='+fbMember.level+'&fb='+fbToken;
-
-  document.getElementById('fbLinkBox').textContent = fbGenUrl;
-  document.getElementById('fbLinkArea').style.display = 'block';
-  document.getElementById('btnCopyFb').style.display = 'inline-block';
+// ── STORAGE ─────────────────────────────────────────────────────
+function storKey() { return 'hb2_' + member.phone; }
+function loadData() {
+  try {
+    const d = JSON.parse(localStorage.getItem(storKey()) || '{}');
+    sessions = d.sessions || {};
+    calMark  = d.cal || {};
+  } catch { sessions = {}; calMark = {}; }
+}
+function saveData() {
+  localStorage.setItem(storKey(), JSON.stringify({ sessions, cal: calMark }));
 }
 
-function copyFbLink() {
-  copyText(fbGenUrl);
-  toast(fbMember.name+'님의 피드백 링크가 복사되었습니다');
-  closeFb();
+// ── LOGIN ────────────────────────────────────────────────────────
+function doLogin() {
+  const name  = document.getElementById('inp-name').value.trim();
+  const phone = document.getElementById('inp-phone').value.replace(/\D/g,'');
+  const err   = document.getElementById('loginErr');
+  err.style.display = 'none';
+  if (!member) { err.textContent = '올바른 링크로 접속해주세요.'; err.style.display='block'; return; }
+  if (phone !== member.phone) { err.style.display = 'block'; return; }
+  // 이름 저장 (표시용)
+  member.n = name || '회원';
+  localStorage.setItem('hb2_name_' + member.phone, member.n);
+  sessionStorage.setItem('hb2_login', member.phone);
+  applyPendingFb();
+  showDashboard();
 }
 
-function closeFb() {
-  document.getElementById('fbSheet').classList.remove('open');
-  fbMember = null;
+function doLogout() {
+  sessionStorage.removeItem('hb2_login');
+  member.n = null;
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
 }
-document.getElementById('fbSheet').addEventListener('click', e => {
-  if (e.target===document.getElementById('fbSheet')) closeFb();
+
+document.getElementById('inp-phone').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('inp-name').addEventListener('keydown',  e => { if(e.key==='Enter') document.getElementById('inp-phone').focus(); });
+
+// ── PENDING FEEDBACK ─────────────────────────────────────────────
+let pendingFb = null;
+
+function applyPendingFb() {
+  if (!pendingFb) return;
+  const prev = sessions[pendingFb.d];
+  sessions[pendingFb.d] = { good: pendingFb.g, next: pendingFb.n };
+  saveData();
+
+  // Show banner
+  const gi = getItem(member.l, pendingFb.g);
+  const ni = getItem(member.l, pendingFb.n);
+  document.getElementById('fbBannerText').textContent =
+    pendingFb.d + ' 수업 — 잘했어요: ' + gi.name + ' · 신경써봐요: ' + ni.name;
+  document.getElementById('fbBanner').classList.add('show');
+  pendingFb = null;
+}
+
+// ── DASHBOARD ────────────────────────────────────────────────────
+function showDashboard() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('dashboard').style.display   = 'block';
+
+  const lvPillCls = ['','lv1p','lv2p','lv3p','lv4p'];
+  const lvNames   = ['','Awakening','Alignment','Connection','Flow'];
+  document.getElementById('topName').textContent = member.n + '님';
+  const lp = document.getElementById('topLevel');
+  lp.textContent = 'L' + member.l + ' · ' + lvNames[member.l];
+  lp.className = 'lv-pill ' + lvPillCls[member.l];
+
+  calYear  = today.getFullYear();
+  calMonth = today.getMonth();
+  repYear  = today.getFullYear();
+  repMonth = today.getMonth();
+
+  renderCalendar();
+  renderReport();
+}
+
+// ── TABS ─────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.getElementById('tbCal').classList.toggle('active', tab==='cal');
+  document.getElementById('tbRep').classList.toggle('active', tab==='report');
+  document.getElementById('tabCal').style.display    = tab==='cal' ? 'block' : 'none';
+  document.getElementById('tabReport').style.display = tab==='report' ? 'block' : 'none';
+}
+
+// ── CALENDAR ─────────────────────────────────────────────────────
+const MONTHS_KO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+
+function calMove(dir) {
+  calMonth += dir;
+  if (calMonth>11) { calMonth=0; calYear++; }
+  if (calMonth<0)  { calMonth=11; calYear--; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  document.getElementById('calYM').textContent = calYear + '년 ' + MONTHS_KO[calMonth];
+
+  const firstDay    = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const prefix      = fmtDate(calYear, calMonth, 1).slice(0, 7);
+  const isCurrentM  = (calYear===today.getFullYear() && calMonth===today.getMonth());
+
+  // Stats
+  const sessDays = Object.keys(sessions).filter(k=>k.startsWith(prefix+'-'));
+  const planDays = Object.keys(calMark).filter(k=>k.startsWith(prefix+'-') && calMark[k]==='p');
+  const restDays = Object.keys(calMark).filter(k=>k.startsWith(prefix+'-') && calMark[k]==='r');
+
+  document.getElementById('monthStats').innerHTML = `
+    <div class="stat-card"><div class="sn" style="color:var(--good)">${sessDays.length}</div><div class="sl">피드백 완료</div></div>
+    <div class="stat-card"><div class="sn" style="color:var(--blue)">${planDays.length}</div><div class="sl">운동 예정</div></div>
+    <div class="stat-card"><div class="sn" style="color:var(--text-3)">${restDays.length}</div><div class="sl">휴식</div></div>
+  `;
+
+  let cells = [];
+  for (let i=0; i<firstDay; i++) cells.push(null);
+  for (let d=1; d<=daysInMonth; d++) cells.push(d);
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = cells.map(d => {
+    if (!d) return '<div class="cal-cell empty"></div>';
+    const k = fmtDate(calYear, calMonth, d);
+    const isToday = (k === todayKey);
+    const isPast  = !isCurrentM || d < today.getDate();
+    const sess    = sessions[k];
+    const mark    = calMark[k];
+
+    let cls = 'cal-cell';
+    let extra = '';
+    if (sess) {
+      cls += ' session';
+      extra = '<div class="cal-dot"></div>';
+    } else if (mark==='p') {
+      cls += ' planned';
+    } else if (mark==='r') {
+      cls += ' rest';
+    } else if (isPast && !isToday) {
+      cls += ' past';
+    }
+    if (isToday) cls += ' today';
+
+    const click = sess ? `showSess('${k}')` : `toggleDay('${k}')`;
+    return `<div class="${cls}" onclick="${click}">${d}${extra}</div>`;
+  }).join('');
+
+  // Show report for past months at bottom of calendar
+  renderInlineReport();
+}
+
+function toggleDay(key) {
+  const cur = calMark[key];
+  if (!cur)        calMark[key] = 'p';
+  else if (cur==='p') calMark[key] = 'r';
+  else             delete calMark[key];
+  saveData();
+  renderCalendar();
+}
+
+// ── SESSION POPUP ─────────────────────────────────────────────────
+function showSess(key) {
+  const sess = sessions[key];
+  if (!sess) return;
+
+  const [y,m,d] = key.split('-');
+  document.getElementById('sessDate').textContent = y+'년 '+(+m)+'월 '+(+d)+'일 수업 피드백';
+
+  const gi = getItem(member.l, sess.good);
+  const ni = getItem(member.l, sess.next);
+  document.getElementById('sessGoodName').textContent = gi.name;
+  document.getElementById('sessGoodText').textContent = gi.text;
+  document.getElementById('sessNextName').textContent = ni.name;
+  document.getElementById('sessNextText').textContent = ni.text;
+
+  document.getElementById('sessOverlay').classList.add('open');
+}
+function closeSess() { document.getElementById('sessOverlay').classList.remove('open'); }
+document.getElementById('sessOverlay').addEventListener('click', e => {
+  if (e.target===document.getElementById('sessOverlay')) closeSess();
 });
 
-// ── RENDER ──
-const lvName = ['','Awakening','Alignment','Connection','Flow'];
-const lvBadge = ['','b1','b2','b3','b4'];
+// ── MONTHLY REPORT ────────────────────────────────────────────────
+function getMonthData(y, m) {
+  const prefix = fmtDate(y, m, 1).slice(0, 7);
+  const days = Object.keys(sessions).filter(k => k.startsWith(prefix+'-'));
+  const goodCount = {}, nextCount = {};
+  days.forEach(k => {
+    const s = sessions[k];
+    if (s.good) goodCount[s.good] = (goodCount[s.good]||0) + 1;
+    if (s.next) nextCount[s.next] = (nextCount[s.next]||0) + 1;
+  });
+  const topGood = Object.entries(goodCount).sort((a,b)=>b[1]-a[1])[0];
+  const topNext = Object.entries(nextCount).sort((a,b)=>b[1]-a[1])[0];
+  return { count: days.length, topGood, topNext, goodCount, nextCount };
+}
 
-function render() {
-  const all = getAll();
-  document.getElementById('cnt').textContent = all.length;
-  const el = document.getElementById('mlist');
-  if (!all.length) {
-    el.innerHTML = '<div class="empty">아직 등록된 회원이 없어요.<br>위 양식에서 회원을 추가해주세요.</div>';
+function isMonthOver(y, m) {
+  const lastDay = new Date(y, m+1, 0);
+  const now = new Date();
+  // Show report if: month has ended, OR it's the last day of current month
+  return lastDay < now || (y===now.getFullYear() && m===now.getMonth() && now.getDate()===lastDay.getDate());
+}
+
+function buildReportHTML(y, m, data) {
+  if (!data.count) {
+    return `<div class="no-data">이 달에 기록된 수업이 없어요.</div>`;
+  }
+  const nextM = m===11 ? 0 : m+1;
+  const nextY = m===11 ? y+1 : y;
+
+  let goodHTML = '', nextHTML = '', recommendHTML = '';
+
+  if (data.topGood) {
+    const gi = getItem(member.l, data.topGood[0]);
+    goodHTML = `
+      <div class="report-item good-item">
+        <div class="ri-label">이번 달 잘했어요</div>
+        <div class="ri-name">${gi.name}</div>
+        <div class="ri-text">${gi.text}</div>
+        <div class="ri-count">${data.topGood[1]}회 칭찬받음</div>
+      </div>`;
+  }
+  if (data.topNext) {
+    const ni = getItem(member.l, data.topNext[0]);
+    nextHTML = `
+      <div class="report-item next-item">
+        <div class="ri-label">집중이 필요했어요</div>
+        <div class="ri-name">${ni.name}</div>
+        <div class="ri-text">${ni.text}</div>
+        <div class="ri-count">${data.topNext[1]}회 지적됨</div>
+      </div>`;
+    recommendHTML = `
+      <div class="report-recommend">
+        <div class="rr-label">${nextY}년 ${MONTHS_KO[nextM]} 집중 포인트</div>
+        <div class="rr-text">"${ni.name}" — ${ni.text}</div>
+      </div>`;
+  }
+
+  return `
+    <div class="report-row">
+      <div class="report-stat"><div class="rs-num">${data.count}</div><div class="rs-lbl">수업 횟수</div></div>
+      <div class="report-stat"><div class="rs-num" style="color:var(--good)">${Object.keys(data.goodCount).length}</div><div class="rs-lbl">칭찬 항목 수</div></div>
+      <div class="report-stat"><div class="rs-num" style="color:var(--next)">${Object.keys(data.nextCount).length}</div><div class="rs-lbl">집중 항목 수</div></div>
+    </div>
+    ${goodHTML}${nextHTML}${recommendHTML}
+  `;
+}
+
+function renderInlineReport() {
+  const el = document.getElementById('reportInCal');
+  if (!isMonthOver(calYear, calMonth)) { el.innerHTML = ''; return; }
+  const data = getMonthData(calYear, calMonth);
+  if (!data.count) { el.innerHTML = ''; return; }
+  el.innerHTML = `
+    <div class="report-card">
+      <div class="report-header">
+        <div class="report-title">${calYear}년 ${MONTHS_KO[calMonth]} 결과 리포트</div>
+      </div>
+      <div class="report-body">${buildReportHTML(calYear, calMonth, data)}</div>
+    </div>`;
+}
+
+// ── REPORT TAB ────────────────────────────────────────────────────
+function repMove(dir) {
+  repMonth += dir;
+  if (repMonth>11) { repMonth=0; repYear++; }
+  if (repMonth<0)  { repMonth=11; repYear--; }
+  renderReport();
+}
+
+function renderReport() {
+  document.getElementById('repYM').textContent = repYear + '년 ' + MONTHS_KO[repMonth];
+  const el = document.getElementById('repContent');
+  const data = getMonthData(repYear, repMonth);
+
+  if (!isMonthOver(repYear, repMonth)) {
+    el.innerHTML = `<div class="no-data">이 달의 리포트는 달이 끝나면 볼 수 있어요.<br>현재 ${data.count}회 수업이 기록되어 있어요.</div>`;
     return;
   }
-  el.innerHTML = all.map(m => `
-    <div class="member-item">
-      <div class="avatar">${m.name.charAt(0)}</div>
-      <div class="minfo">
-        <div class="mname">${m.name}</div>
-        <div class="mphone">${maskPhone(m.phone)}</div>
-        <div class="mdate">${m.created} 등록</div>
+  el.innerHTML = `
+    <div class="report-card">
+      <div class="report-header">
+        <div class="report-title">${repYear}년 ${MONTHS_KO[repMonth]} 리포트</div>
       </div>
-      <span class="lv-badge ${lvBadge[m.level]}">L${m.level} · ${lvName[m.level]}</span>
-      <div class="mactions">
-        <select class="lv-sel" onchange="setLevel('${m.id}',this.value)">
-          <option value="1" ${m.level===1?'selected':''}>L1</option>
-          <option value="2" ${m.level===2?'selected':''}>L2</option>
-          <option value="3" ${m.level===3?'selected':''}>L3</option>
-          <option value="4" ${m.level===4?'selected':''}>L4</option>
-        </select>
-        <button class="btn-sm btn-fb" onclick="openFb('${m.id}')">피드백 입력</button>
-        <button class="btn-sm" onclick="showLink('${m.id}')">링크 보기</button>
-        <button class="btn-sm btn-del" onclick="delMember('${m.id}')">삭제</button>
-      </div>
-    </div>
-  `).join('');
+      <div class="report-body">${buildReportHTML(repYear, repMonth, data)}</div>
+    </div>`;
 }
 
-function copyText(text) {
-  navigator.clipboard.writeText(text).catch(() => {
-    const el = document.createElement('textarea');
-    el.value = text; el.style.position='fixed'; el.style.opacity='0';
-    document.body.appendChild(el); el.select(); document.execCommand('copy');
-    document.body.removeChild(el);
-  });
-}
-
+// ── TOAST ─────────────────────────────────────────────────────────
 let _tt;
 function toast(msg) {
   const el = document.getElementById('toast');
   el.textContent = msg; el.classList.add('show');
-  clearTimeout(_tt); _tt = setTimeout(()=>el.classList.remove('show'), 2500);
+  clearTimeout(_tt); _tt = setTimeout(()=>el.classList.remove('show'), 2200);
 }
 
-render();
+// ── INIT ─────────────────────────────────────────────────────────
+(function init() {
+  const params = new URLSearchParams(window.location.search);
+  const p  = params.get('p');   // 전화번호 11자리
+  const l  = params.get('l');   // 레벨
+  const fb = params.get('fb');
+
+  if (p && l) {
+    const savedName = localStorage.getItem('hb2_name_' + p);
+    member = { phone: p, l: parseInt(l), n: savedName || null };
+  } else {
+    member = null;
+  }
+
+  if (member && member.n) {
+    document.getElementById('loginGreeting').textContent = '안녕하세요, ' + member.n + '님!';
+  }
+
+  if (!member) {
+    document.getElementById('loginGreeting').textContent = '링크를 확인해주세요';
+    document.querySelector('.login-sub').textContent = '강사님이 보내준 링크로 접속해야 해요.';
+    ['inp-name','inp-phone'].forEach(id => document.getElementById(id).disabled = true);
+    const btn = document.querySelector('.btn-login');
+    btn.disabled = true; btn.style.opacity = '0.4';
+    return;
+  }
+
+  if (fb) {
+    try { pendingFb = JSON.parse(atob(fb)); } catch { pendingFb = null; }
+  }
+
+  loadData();
+
+  if (sessionStorage.getItem('hb2_login') === member.phone) {
+    applyPendingFb();
+    showDashboard();
+  }
+})();
 </script>
 </body>
 </html>
