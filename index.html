@@ -29,6 +29,7 @@
     .topbar {
       position: sticky; top: 0; z-index: 100;
       background: rgba(255,255,255,0.85);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
       backdrop-filter: saturate(180%) blur(20px);
       border-bottom: 1px solid var(--border-s);
       padding: 14px 24px; display: flex; align-items: center; gap: 10px;
@@ -131,8 +132,10 @@
 
     /* Link popup */
     .popup {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.3); backdrop-filter: blur(4px);
+      display: none; position: fixed; top: 0; right: 0; bottom: 0; left: 0;
+      background: rgba(0,0,0,0.3);
+      -webkit-backdrop-filter: blur(4px);
+      backdrop-filter: blur(4px);
       z-index: 200; align-items: center; justify-content: center; padding: 24px;
     }
     .popup.open { display: flex; }
@@ -154,8 +157,10 @@
 
     /* Feedback sheet */
     .fb-sheet {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.35); backdrop-filter: blur(4px);
+      display: none; position: fixed; top: 0; right: 0; bottom: 0; left: 0;
+      background: rgba(0,0,0,0.35);
+      -webkit-backdrop-filter: blur(4px);
+      backdrop-filter: blur(4px);
       z-index: 210; align-items: flex-end; justify-content: center;
     }
     .fb-sheet.open { display: flex; }
@@ -198,7 +203,7 @@
       display: flex; align-items: center; gap: 12px;
       padding: 12px 14px; border-radius: 11px;
       cursor: pointer; border: 1.5px solid var(--border-s);
-      transition: all 0.15s; user-select: none;
+      transition: all 0.15s; -webkit-user-select: none; user-select: none;
     }
     .radio-item:hover { border-color: var(--border); background: #fafafa; }
     .radio-item input[type="radio"] { display: none; }
@@ -385,13 +390,10 @@ function maskPhone(p) {
   const d = p.replace(/\D/g,'');
   return d.length>=8 ? d.slice(0,3)+'-****-'+d.slice(-4) : p;
 }
-function makeToken(m) {
-  const raw = JSON.stringify({id:m.id, n:m.name, p:m.phone.replace(/\D/g,'').slice(-4), l:m.level});
-  return btoa(unescape(encodeURIComponent(raw)));
-}
 function makeLink(m) {
-  const memberBase = new URL('../12step feedback_member/', window.location.href).href;
-  return memberBase + '?t=' + makeToken(m);
+  const memberBase = 'https://feedback-member.vercel.app/';
+  const phone = m.phone.replace(/\D/g,'');
+  return memberBase + '?p=' + phone + '&l=' + m.level;
 }
 
 function addMember() {
@@ -513,10 +515,10 @@ function genFbLink() {
   if (!fbGoodSel) { toast('"오늘 잘했어요" 항목을 선택해주세요'); return; }
   if (!fbNextSel) { toast('"다음번에 더 신경써봐요" 항목을 선택해주세요'); return; }
 
-  const mToken = makeToken(fbMember);
-  const fbToken = btoa(unescape(encodeURIComponent(JSON.stringify({d:date, g:fbGoodSel, n:fbNextSel}))));
-  const memberBase = new URL('../12step feedback_member/', window.location.href).href;
-  fbGenUrl = memberBase+'?t='+mToken+'&fb='+fbToken;
+  const phone = fbMember.phone.replace(/\D/g,'');
+  const fbToken = btoa(JSON.stringify({d:date, g:fbGoodSel, n:fbNextSel}));
+  const memberBase = 'https://feedback-member.vercel.app/';
+  fbGenUrl = memberBase+'?p='+phone+'&l='+fbMember.level+'&fb='+fbToken;
 
   document.getElementById('fbLinkBox').textContent = fbGenUrl;
   document.getElementById('fbLinkArea').style.display = 'block';
