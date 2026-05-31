@@ -135,6 +135,38 @@
     .btn-fb:hover { border-color: var(--good); background: var(--good-bg); color: var(--good); }
     .btn-del { background: var(--danger-bg); border-color: transparent; color: var(--danger); }
     .btn-del:hover { border-color: var(--danger); background: var(--danger-bg); }
+    .btn-go { background: var(--blue-bg); border-color: transparent; color: var(--blue); }
+    .btn-go:hover { border-color: var(--blue); background: var(--blue-bg); color: var(--blue); }
+    .btn-qr { background: #f5f0ff; border-color: transparent; color: #7c3aed; }
+    .btn-qr:hover { border-color: #7c3aed; background: #f5f0ff; color: #7c3aed; }
+
+    /* QR popup */
+    .qr-popup {
+      display: none; position: fixed; top: 0; right: 0; bottom: 0; left: 0;
+      background: rgba(0,0,0,0.4);
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
+      z-index: 250; align-items: center; justify-content: center; padding: 24px;
+    }
+    .qr-popup.open { display: flex; }
+    .qr-box {
+      background: white; border-radius: 24px; padding: 32px 28px 24px;
+      width: 100%; max-width: 340px; text-align: center;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+    }
+    .qr-name { font-size: 19px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 4px; }
+    .qr-level { font-size: 13px; color: var(--text-2); margin-bottom: 24px; }
+    .qr-canvas-wrap {
+      display: inline-block; padding: 16px; background: white;
+      border-radius: 16px; border: 1.5px solid var(--border-s);
+      margin-bottom: 20px;
+    }
+    .qr-hint { font-size: 12px; color: var(--text-3); line-height: 1.6; margin-bottom: 20px; }
+    .btn-qr-close {
+      width: 100%; padding: 13px; background: #f5f5f7;
+      border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
+      cursor: pointer; font-family: inherit; color: var(--text-2);
+    }
 
     /* Link popup */
     .popup {
@@ -363,8 +395,22 @@
   </div>
 </div>
 
+<!-- QR popup -->
+<div class="qr-popup" id="qrPopup">
+  <div class="qr-box">
+    <div class="qr-name" id="qrName"></div>
+    <div class="qr-level" id="qrLevel"></div>
+    <div class="qr-canvas-wrap">
+      <div id="qrCanvas"></div>
+    </div>
+    <div class="qr-hint">카메라로 QR코드를 스캔하면<br>회원 대시보드로 바로 접속돼요.</div>
+    <button class="btn-qr-close" onclick="closeQR()">닫기</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 const DB = 'hb_members';
 let selLevel = 1;
@@ -421,6 +467,38 @@ function setLevel(id, lv) {
   const all = getAll();
   const m = all.find(x=>x.id===id);
   if (m) { m.level=parseInt(lv); setAll(all); render(); toast('레벨이 변경되었습니다'); }
+}
+
+// QR popup
+function showQR(id) {
+  const m = getAll().find(x=>x.id===id);
+  if (!m) return;
+  const lvNames = ['','Awakening','Alignment','Connection','Flow'];
+  document.getElementById('qrName').textContent = m.name + '님';
+  document.getElementById('qrLevel').textContent = 'L' + m.level + ' · ' + lvNames[m.level];
+
+  const wrap = document.getElementById('qrCanvas');
+  wrap.innerHTML = '';
+  new QRCode(wrap, {
+    text: makeLink(m),
+    width: 220,
+    height: 220,
+    colorDark: '#1d1d1f',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M
+  });
+  document.getElementById('qrPopup').classList.add('open');
+}
+function closeQR() { document.getElementById('qrPopup').classList.remove('open'); }
+document.addEventListener('click', e => {
+  const popup = document.getElementById('qrPopup');
+  if (e.target === popup) closeQR();
+});
+
+function goMember(id) {
+  const m = getAll().find(x=>x.id===id);
+  if (!m) return;
+  window.open(makeLink(m), '_blank');
 }
 
 function delMember(id) {
@@ -575,6 +653,8 @@ function render() {
         </select>
         <button class="btn-sm btn-fb" onclick="openFb('${m.id}')">피드백 입력</button>
         <button class="btn-sm" onclick="showLink('${m.id}')">링크 보기</button>
+        <button class="btn-sm btn-go" onclick="goMember('${m.id}')">바로 가기 ↗</button>
+        <button class="btn-sm btn-qr" onclick="showQR('${m.id}')">QR 보기</button>
         <button class="btn-sm btn-del" onclick="delMember('${m.id}')">삭제</button>
       </div>
     </div>
