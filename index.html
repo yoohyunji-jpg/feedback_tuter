@@ -278,6 +278,51 @@
       border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
       cursor: pointer; font-family: inherit; display: none;
     }
+    .btn-kakao {
+      padding: 14px 18px; background: #FEE500; color: #3C1E1E;
+      border: none; border-radius: 12px; font-size: 15px; font-weight: 700;
+      cursor: pointer; font-family: inherit; display: none; white-space: nowrap;
+    }
+    .btn-kakao:hover { opacity: 0.9; }
+
+    /* 10회 달성 팝업 */
+    .ten-popup {
+      display: none; position: fixed; top: 0; right: 0; bottom: 0; left: 0;
+      background: rgba(0,0,0,0.5);
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
+      z-index: 300; align-items: center; justify-content: center; padding: 24px;
+    }
+    .ten-popup.open { display: flex; }
+    .ten-box {
+      background: white; border-radius: 24px; padding: 32px 28px 24px;
+      width: 100%; max-width: 400px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.22);
+    }
+    .ten-badge {
+      display: inline-block; font-size: 12px; font-weight: 700;
+      padding: 4px 12px; border-radius: 100px; margin-bottom: 14px;
+    }
+    .ten-title { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }
+    .ten-sub { font-size: 14px; color: var(--text-2); line-height: 1.6; margin-bottom: 20px; }
+    .ten-summary {
+      border-radius: 14px; padding: 16px 18px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .ten-item { display: flex; flex-direction: column; gap: 3px; }
+    .ten-item-label { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+    .ten-item-name { font-size: 15px; font-weight: 700; }
+    .ten-item-count { font-size: 12px; color: var(--text-3); }
+    .ten-actions { display: flex; flex-direction: column; gap: 10px; }
+    .btn-ten-kakao {
+      width: 100%; padding: 15px; background: #FEE500; color: #3C1E1E;
+      border: none; border-radius: 14px; font-size: 16px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+    }
+    .btn-ten-close {
+      width: 100%; padding: 13px; background: #f5f5f7;
+      border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
+      cursor: pointer; font-family: inherit; color: var(--text-2);
+    }
 
     /* Empty */
     .empty { text-align: center; padding: 40px 20px; color: var(--text-3); font-size: 14px; }
@@ -391,6 +436,21 @@
     <div class="fb-actions">
       <button class="btn-gen" onclick="genFbLink()">피드백 링크 생성</button>
       <button class="btn-copy-fb" id="btnCopyFb" onclick="copyFbLink()">복사</button>
+      <button class="btn-kakao" id="btnKakaoFb" onclick="sendKakaoFb()">카카오 전송</button>
+    </div>
+  </div>
+</div>
+
+<!-- 10회 달성 팝업 -->
+<div class="ten-popup" id="tenPopup">
+  <div class="ten-box">
+    <div class="ten-badge" id="tenBadge"></div>
+    <div class="ten-title" id="tenTitle"></div>
+    <div class="ten-sub" id="tenSub"></div>
+    <div class="ten-summary" id="tenSummary"></div>
+    <div class="ten-actions">
+      <button class="btn-ten-kakao" id="btnTenKakao">카카오톡으로 리포트 전송</button>
+      <button class="btn-ten-close" onclick="closeTenPopup()">나중에 보내기</button>
     </div>
   </div>
 </div>
@@ -411,7 +471,9 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4" crossorigin="anonymous"></script>
 <script>
+Kakao.init('21c12f25ac346bb852b00d72e5ce3f2c');
 const DB = 'hb_members';
 let selLevel = 1;
 let currentLink = '';
@@ -604,10 +666,140 @@ function genFbLink() {
   const memberBase = 'https://feedback-member.vercel.app/';
   fbGenUrl = memberBase+'?p='+phone+'&l='+fbMember.level+'&fb='+fbToken;
 
+  // 피드백 기록 저장 및 횟수 누적
+  const all = getAll();
+  const mIdx = all.findIndex(x => x.id === fbMember.id);
+  if (mIdx >= 0) {
+    if (!all[mIdx].fbHistory) all[mIdx].fbHistory = [];
+    // 같은 날짜 중복 방지
+    all[mIdx].fbHistory = all[mIdx].fbHistory.filter(h => h.d !== date);
+    all[mIdx].fbHistory.push({ d: date, g: fbGoodSel, n: fbNextSel });
+    all[mIdx].fbCount = all[mIdx].fbHistory.length;
+    setAll(all);
+    fbMember = all[mIdx];
+  }
+
   document.getElementById('fbLinkBox').textContent = fbGenUrl;
   document.getElementById('fbLinkArea').style.display = 'block';
   document.getElementById('btnCopyFb').style.display = 'inline-block';
+  document.getElementById('btnKakaoFb').style.display = 'inline-block';
+
+  // 10회 달성 체크
+  if (fbMember.fbCount && fbMember.fbCount % 10 === 0) {
+    setTimeout(() => showTenReport(fbMember), 600);
+  }
 }
+
+// ── 레벨별 색상 ──
+const LV_COLOR = {
+  1: { bg: '#b45309', pill: 'rgba(0,0,0,0.18)', pillText: '#fef3c7', name: 'Awakening' },
+  2: { bg: '#1d7a45', pill: 'rgba(0,0,0,0.18)', pillText: '#d1f0e0', name: 'Alignment' },
+  3: { bg: '#185fa5', pill: 'rgba(0,0,0,0.18)', pillText: '#c7d9f8', name: 'Connection' },
+  4: { bg: '#a32d2d', pill: 'rgba(0,0,0,0.18)', pillText: '#ffc5c5', name: 'Flow' },
+};
+
+// ── 카카오 일반 피드백 전송 ──
+function sendKakaoFb() {
+  if (!fbGenUrl || !fbMember) return;
+  const lv = fbMember.level;
+  const lvc = LV_COLOR[lv];
+  const goodItem = ITEMS[lv].find(i => i.n === fbGoodSel);
+  const nextItem = ITEMS[lv].find(i => i.n === fbNextSel);
+  const date = document.getElementById('fbDate').value;
+
+  Kakao.Share.sendDefault({
+    objectType: 'feed',
+    content: {
+      title: fbMember.name + '님의 오늘 수업 피드백',
+      description:
+        '레벨' + lv + ' · ' + lvc.name + '\n' +
+        '📅 ' + date + '\n\n' +
+        '✅ 잘했어요\n' + (goodItem ? goodItem.name : '') + '\n\n' +
+        '📌 다음에 더 신경써봐요\n' + (nextItem ? nextItem.name : ''),
+      imageUrl: 'https://feedback-tuter.vercel.app/icon-512.png',
+      link: { mobileWebUrl: fbGenUrl, webUrl: fbGenUrl },
+    },
+  });
+}
+
+// ── 10회 달성 팝업 ──
+let tenReportMember = null;
+let tenReportKakaoFn = null;
+
+function showTenReport(m) {
+  tenReportMember = m;
+  const lv = m.level;
+  const lvc = LV_COLOR[lv];
+  const history = m.fbHistory || [];
+  const count = m.fbCount;
+
+  // 빈도 계산
+  const goodCount = {}, nextCount = {};
+  history.forEach(h => {
+    goodCount[h.g] = (goodCount[h.g] || 0) + 1;
+    nextCount[h.n] = (nextCount[h.n] || 0) + 1;
+  });
+  const topGood = Object.entries(goodCount).sort((a,b) => b[1]-a[1])[0];
+  const topNext = Object.entries(nextCount).sort((a,b) => b[1]-a[1])[0];
+  const topGoodItem = topGood ? ITEMS[lv].find(i => i.n === topGood[0]) : null;
+  const topNextItem = topNext ? ITEMS[lv].find(i => i.n === topNext[0]) : null;
+
+  // 팝업 내용
+  const badge = document.getElementById('tenBadge');
+  badge.textContent = count + '회 달성!';
+  badge.style.background = lvc.bg + '22';
+  badge.style.color = lvc.bg;
+
+  document.getElementById('tenTitle').textContent = m.name + '님 ' + count + '회 완료!';
+  document.getElementById('tenSub').textContent = '10회 리포트를 카카오톡으로 전송해드릴게요.\n가장 자주 칭찬받은 항목과 집중이 필요한 항목이에요.';
+
+  document.getElementById('tenSummary').style.background = lvc.bg + '11';
+  document.getElementById('tenSummary').style.border = '0.5px solid ' + lvc.bg + '44';
+  document.getElementById('tenSummary').innerHTML = `
+    <div class="ten-item">
+      <div class="ten-item-label" style="color:${lvc.bg}">✅ 가장 잘한 것</div>
+      <div class="ten-item-name">${topGoodItem ? topGoodItem.name : '-'}</div>
+      <div class="ten-item-count">${topGood ? topGood[1] + '회 칭찬' : ''}</div>
+    </div>
+    <div style="height:1px;background:${lvc.bg}22"></div>
+    <div class="ten-item">
+      <div class="ten-item-label" style="color:#6e6e73">📌 집중이 필요한 것</div>
+      <div class="ten-item-name">${topNextItem ? topNextItem.name : '-'}</div>
+      <div class="ten-item-count">${topNext ? topNext[1] + '회 언급' : ''}</div>
+    </div>
+  `;
+
+  // 카카오 전송 함수 세팅
+  const memberLink = makeLink(m);
+  document.getElementById('btnTenKakao').onclick = function() {
+    const reportDesc =
+      '레벨' + lv + ' · ' + lvc.name + '\n' +
+      '누적 ' + count + '회 수업 완료\n\n' +
+      '🏆 가장 잘한 것\n' + (topGoodItem ? topGoodItem.name : '-') + '\n\n' +
+      '📌 집중이 필요한 것\n' + (topNextItem ? topNextItem.name : '-');
+
+    Kakao.Share.sendDefault({
+      objectType: 'feed',
+      content: {
+        title: m.name + '님 ' + count + '회 수업 완료!',
+        description: reportDesc,
+        imageUrl: 'https://feedback-tuter.vercel.app/icon-512.png',
+        link: { mobileWebUrl: memberLink, webUrl: memberLink },
+      },
+    });
+    closeTenPopup();
+  };
+
+  document.getElementById('tenPopup').classList.add('open');
+}
+
+function closeTenPopup() {
+  document.getElementById('tenPopup').classList.remove('open');
+  tenReportMember = null;
+}
+document.getElementById('tenPopup').addEventListener('click', e => {
+  if (e.target === document.getElementById('tenPopup')) closeTenPopup();
+});
 
 function copyFbLink() {
   copyText(fbGenUrl);
