@@ -710,68 +710,44 @@ function sendKakaoFb() {
   const date = document.getElementById('fbDate').value;
 
   const title = fbMember.name + '님의 오늘 수업 피드백';
-  const desc =
-    '레벨' + lv + ' · ' + lvc.name + '  |  ' + date + '\n' +
+  const body =
+    '📋 ' + fbMember.name + '님의 오늘 수업 피드백\n' +
+    '레벨' + lv + ' · ' + lvc.name + '  |  ' + date + '\n\n' +
     '✅ 잘했어요: ' + (goodItem ? goodItem.name : '') + '\n' +
-    '📌 다음에: ' + (nextItem ? nextItem.name : '');
+    '📌 다음에 더 신경써봐요: ' + (nextItem ? nextItem.name : '') + '\n\n' +
+    '👉 내 대시보드 보기: ' + fbGenUrl;
 
-  // Kakao SDK 방식 시도
-  if (typeof Kakao !== 'undefined' && Kakao.isInitialized()) {
-    try {
-      Kakao.Share.sendDefault({
-        objectType: 'feed',
-        content: {
-          title: title,
-          description: desc,
-          imageUrl: 'https://feedback-tuter.vercel.app/icon-512.png',
-          link: { mobileWebUrl: fbGenUrl, webUrl: fbGenUrl },
-        },
-        success: function() {
-          toast('✅ 카카오톡 공유창이 열렸어요!');
-        },
-        fail: function(err) {
-          console.error('Kakao share error:', JSON.stringify(err));
-          openKakaoFallback(fbGenUrl, title, desc);
-        },
-      });
-      return;
-    } catch(e) {
-      console.error('Kakao.Share exception:', e);
-    }
-  }
-  // SDK 없거나 실패 시 fallback
-  openKakaoFallback(fbGenUrl, title, desc);
+  shareMessage(title, body, fbGenUrl);
 }
 
-function openKakaoFallback(url, title, desc) {
-  // 카카오톡 앱 URL 스킴 (앱 설치 시)
-  const appUrl = 'kakaolink://send?msg=' + encodeURIComponent(desc + '\n\n' + url);
-  // 웹 공유 fallback
-  const webUrl = 'https://sharer.kakao.com/talk/friends/picker/link' +
-    '?app_key=40e752bc4c99343d02b0e4d981cd9441' +
-    '&validation_action=default' +
-    '&validation_params=' + encodeURIComponent(JSON.stringify({
-      link_ver: '4.0',
-      template_object: {
-        object_type: 'feed',
-        content: {
-          title: title,
-          description: desc,
-          image_url: 'https://feedback-tuter.vercel.app/icon-512.png',
-          link: { mobile_web_url: url, web_url: url }
+// 공유 핵심 함수 — iOS 네이티브 공유 시트 우선, 실패 시 클립보드
+function shareMessage(title, body, url) {
+  if (navigator.share) {
+    navigator.share({ title: title, text: body, url: url })
+      .then(() => toast('✅ 공유가 완료됐어요!'))
+      .catch(err => {
+        if (err.name !== 'AbortError') {
+          copyAndToast(body);
         }
-      }
-    }));
-
-  // iOS/iPad: 카카오톡 앱 시도 후 웹으로
-  if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-    window.location.href = webUrl;
+      });
   } else {
-    const w = window.open(webUrl, '_blank', 'width=500,height=600');
-    if (!w) {
-      toast('팝업이 차단되었어요. 브라우저 설정에서 팝업을 허용해주세요.');
-    }
+    copyAndToast(body);
   }
+}
+
+function copyAndToast(text) {
+  navigator.clipboard.writeText(text)
+    .then(() => toast('📋 메시지가 복사됐어요! 카카오톡에 붙여넣기 해주세요.'))
+    .catch(() => {
+      // 구형 방식 fallback
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      toast('📋 메시지가 복사됐어요! 카카오톡에 붙여넣기 해주세요.');
+    });
 }
 
 // ── 10회 달성 팝업 ──
@@ -831,22 +807,8 @@ function showTenReport(m) {
       '📌 집중이 필요한 것\n' + (topNextItem ? topNextItem.name : '-');
 
     const tenTitle = m.name + '님 ' + count + '회 수업 완료!';
-    if (typeof Kakao !== 'undefined' && Kakao.isInitialized()) {
-      try {
-        Kakao.Share.sendDefault({
-          objectType: 'feed',
-          content: {
-            title: tenTitle,
-            description: reportDesc,
-            imageUrl: 'https://feedback-tuter.vercel.app/icon-512.png',
-            link: { mobileWebUrl: memberLink, webUrl: memberLink },
-          },
-        });
-        closeTenPopup();
-        return;
-      } catch(e) { console.error(e); }
-    }
-    openKakaoFallback(memberLink, tenTitle, reportDesc);
+    const tenBody = '🎉 ' + tenTitle + '\n\n' + reportDesc + '\n\n👉 ' + memberLink;
+    shareMessage(tenTitle, tenBody, memberLink);
     closeTenPopup();
   };
 
