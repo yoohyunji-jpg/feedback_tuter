@@ -471,9 +471,11 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4" crossorigin="anonymous"></script>
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"></script>
 <script>
-Kakao.init('21c12f25ac346bb852b00d72e5ce3f2c');
+if (typeof Kakao !== 'undefined') {
+  Kakao.init('21c12f25ac346bb852b00d72e5ce3f2c');
+}
 const DB = 'hb_members';
 let selLevel = 1;
 let currentLink = '';
@@ -701,6 +703,9 @@ const LV_COLOR = {
 // ── 카카오 일반 피드백 전송 ──
 function sendKakaoFb() {
   if (!fbGenUrl || !fbMember) return;
+  if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) {
+    toast('카카오 SDK 로드 실패. 페이지를 새로고침해주세요.'); return;
+  }
   const lv = fbMember.level;
   const lvc = LV_COLOR[lv];
   const goodItem = ITEMS[lv].find(i => i.n === fbGoodSel);
@@ -712,12 +717,15 @@ function sendKakaoFb() {
     content: {
       title: fbMember.name + '님의 오늘 수업 피드백',
       description:
-        '레벨' + lv + ' · ' + lvc.name + '\n' +
-        '📅 ' + date + '\n\n' +
-        '✅ 잘했어요\n' + (goodItem ? goodItem.name : '') + '\n\n' +
-        '📌 다음에 더 신경써봐요\n' + (nextItem ? nextItem.name : ''),
+        '레벨' + lv + ' · ' + lvc.name + '  |  ' + date + '\n\n' +
+        '✅ 잘했어요: ' + (goodItem ? goodItem.name : '') + '\n' +
+        '📌 다음에 더 신경써봐요: ' + (nextItem ? nextItem.name : ''),
       imageUrl: 'https://feedback-tuter.vercel.app/icon-512.png',
       link: { mobileWebUrl: fbGenUrl, webUrl: fbGenUrl },
+    },
+    fail: function(err) {
+      console.error('Kakao share error:', err);
+      toast('카카오 전송 실패. 도메인 등록을 확인해주세요.');
     },
   });
 }
