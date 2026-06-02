@@ -703,31 +703,75 @@ const LV_COLOR = {
 // ── 카카오 일반 피드백 전송 ──
 function sendKakaoFb() {
   if (!fbGenUrl || !fbMember) return;
-  if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) {
-    toast('카카오 SDK 로드 실패. 페이지를 새로고침해주세요.'); return;
-  }
   const lv = fbMember.level;
   const lvc = LV_COLOR[lv];
   const goodItem = ITEMS[lv].find(i => i.n === fbGoodSel);
   const nextItem = ITEMS[lv].find(i => i.n === fbNextSel);
   const date = document.getElementById('fbDate').value;
 
-  Kakao.Share.sendDefault({
-    objectType: 'feed',
-    content: {
-      title: fbMember.name + '님의 오늘 수업 피드백',
-      description:
-        '레벨' + lv + ' · ' + lvc.name + '  |  ' + date + '\n\n' +
-        '✅ 잘했어요: ' + (goodItem ? goodItem.name : '') + '\n' +
-        '📌 다음에 더 신경써봐요: ' + (nextItem ? nextItem.name : ''),
-      imageUrl: 'https://feedback-tuter.vercel.app/icon-512.png',
-      link: { mobileWebUrl: fbGenUrl, webUrl: fbGenUrl },
-    },
-    fail: function(err) {
-      console.error('Kakao share error:', err);
-      toast('카카오 전송 실패. 도메인 등록을 확인해주세요.');
-    },
-  });
+  const title = fbMember.name + '님의 오늘 수업 피드백';
+  const desc =
+    '레벨' + lv + ' · ' + lvc.name + '  |  ' + date + '\n' +
+    '✅ 잘했어요: ' + (goodItem ? goodItem.name : '') + '\n' +
+    '📌 다음에: ' + (nextItem ? nextItem.name : '');
+
+  // Kakao SDK 방식 시도
+  if (typeof Kakao !== 'undefined' && Kakao.isInitialized()) {
+    try {
+      Kakao.Share.sendDefault({
+        objectType: 'feed',
+        content: {
+          title: title,
+          description: desc,
+          imageUrl: 'https://feedback-tuter.vercel.app/icon-512.png',
+          link: { mobileWebUrl: fbGenUrl, webUrl: fbGenUrl },
+        },
+        success: function() {
+          toast('✅ 카카오톡 공유창이 열렸어요!');
+        },
+        fail: function(err) {
+          console.error('Kakao share error:', JSON.stringify(err));
+          openKakaoFallback(fbGenUrl, title, desc);
+        },
+      });
+      return;
+    } catch(e) {
+      console.error('Kakao.Share exception:', e);
+    }
+  }
+  // SDK 없거나 실패 시 fallback
+  openKakaoFallback(fbGenUrl, title, desc);
+}
+
+function openKakaoFallback(url, title, desc) {
+  // 카카오톡 앱 URL 스킴 (앱 설치 시)
+  const appUrl = 'kakaolink://send?msg=' + encodeURIComponent(desc + '\n\n' + url);
+  // 웹 공유 fallback
+  const webUrl = 'https://sharer.kakao.com/talk/friends/picker/link' +
+    '?app_key=40e752bc4c99343d02b0e4d981cd9441' +
+    '&validation_action=default' +
+    '&validation_params=' + encodeURIComponent(JSON.stringify({
+      link_ver: '4.0',
+      template_object: {
+        object_type: 'feed',
+        content: {
+          title: title,
+          description: desc,
+          image_url: 'https://feedback-tuter.vercel.app/icon-512.png',
+          link: { mobile_web_url: url, web_url: url }
+        }
+      }
+    }));
+
+  // iOS/iPad: 카카오톡 앱 시도 후 웹으로
+  if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+    window.location.href = webUrl;
+  } else {
+    const w = window.open(webUrl, '_blank', 'width=500,height=600');
+    if (!w) {
+      toast('팝업이 차단되었어요. 브라우저 설정에서 팝업을 허용해주세요.');
+    }
+  }
 }
 
 // ── 10회 달성 팝업 ──
@@ -786,15 +830,23 @@ function showTenReport(m) {
       '🏆 가장 잘한 것\n' + (topGoodItem ? topGoodItem.name : '-') + '\n\n' +
       '📌 집중이 필요한 것\n' + (topNextItem ? topNextItem.name : '-');
 
-    Kakao.Share.sendDefault({
-      objectType: 'feed',
-      content: {
-        title: m.name + '님 ' + count + '회 수업 완료!',
-        description: reportDesc,
-        imageUrl: 'https://feedback-tuter.vercel.app/icon-512.png',
-        link: { mobileWebUrl: memberLink, webUrl: memberLink },
-      },
-    });
+    const tenTitle = m.name + '님 ' + count + '회 수업 완료!';
+    if (typeof Kakao !== 'undefined' && Kakao.isInitialized()) {
+      try {
+        Kakao.Share.sendDefault({
+          objectType: 'feed',
+          content: {
+            title: tenTitle,
+            description: reportDesc,
+            imageUrl: 'https://feedback-tuter.vercel.app/icon-512.png',
+            link: { mobileWebUrl: memberLink, webUrl: memberLink },
+          },
+        });
+        closeTenPopup();
+        return;
+      } catch(e) { console.error(e); }
+    }
+    openKakaoFallback(memberLink, tenTitle, reportDesc);
     closeTenPopup();
   };
 
