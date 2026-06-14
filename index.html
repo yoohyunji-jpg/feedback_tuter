@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hello Body — 관리자</title>
+  <title>Hello Body</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#f5f5f7">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="HB 강사">
+  <meta name="apple-mobile-web-app-title" content="Hello Body">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -17,13 +17,13 @@
       --text: #1d1d1f; --text-2: #6e6e73; --text-3: #a1a1a6;
       --border: #d2d2d7; --border-s: #e8e8ed;
       --bg: #f5f5f7; --card: #ffffff;
-      --good: #1d7a45; --good-bg: #f0faf4; --good-l: #d1f0e0;
-      --next: #1a56b0; --next-bg: #f0f5ff; --next-l: #c7d9f8;
-      --lv1c: #c04000; --lv1b: #fff0e6;
-      --lv2c: #b45309; --lv2b: #fffbf0;
-      --lv3c: #1d7a45; --lv3b: #f0faf4;
-      --lv4c: #1a56b0; --lv4b: #f0f5ff;
+      --good: #1d7a45; --good-bg: #f0faf4;
+      --next: #1a56b0; --next-bg: #f0f5ff;
       --danger: #ff3b30; --danger-bg: #fff0ef;
+      --lv1: #b45309; --lv1-bg: #fffbf0;
+      --lv2: #1d7a45; --lv2-bg: #f0faf4;
+      --lv3: #185fa5; --lv3-bg: #eff5ff;
+      --lv4: #a32d2d; --lv4-bg: #fff0f0;
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Apple SD Gothic Neo', sans-serif;
@@ -31,51 +31,276 @@
       min-height: 100vh; -webkit-font-smoothing: antialiased;
     }
 
-    /* Topbar */
+    /* ── 공통 ── */
+    .screen { display: none; min-height: 100vh; }
+    .screen.active { display: block; }
+
     .topbar {
       position: sticky; top: 0; z-index: 100;
-      background: rgba(255,255,255,0.85);
-      -webkit-backdrop-filter: saturate(180%) blur(20px);
-      backdrop-filter: saturate(180%) blur(20px);
+      background: rgba(255,255,255,0.88);
+      -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--border-s);
-      padding: 14px 24px; display: flex; align-items: center; gap: 10px;
+      padding: 14px 20px; display: flex; align-items: center; gap: 10px;
     }
-    .brand { font-size: 17px; font-weight: 700; letter-spacing: -0.5px; }
-    .brand-sep { color: var(--border); }
-    .brand-sub { font-size: 13px; color: var(--text-2); }
+    .topbar-back {
+      background: none; border: none; font-size: 16px; color: var(--blue);
+      cursor: pointer; padding: 4px 8px 4px 0; font-family: inherit;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .topbar-title { font-size: 17px; font-weight: 700; letter-spacing: -0.4px; flex: 1; }
+    .topbar-sub { font-size: 13px; color: var(--text-2); }
 
-    .container { max-width: 860px; margin: 0 auto; padding: 32px 24px 80px; }
+    .wrap { max-width: 640px; margin: 0 auto; padding: 28px 20px 100px; }
 
-    /* Card */
     .card {
-      background: var(--card); border-radius: 18px;
-      padding: 28px; margin-bottom: 20px;
+      background: var(--card); border-radius: 16px;
+      padding: 22px; margin-bottom: 16px;
       border: 1px solid var(--border-s);
-      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
     .card-title {
-      font-size: 19px; font-weight: 700; letter-spacing: -0.4px;
-      margin-bottom: 22px; display: flex; align-items: center; gap: 10px;
+      font-size: 17px; font-weight: 700; letter-spacing: -0.3px;
+      margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
     }
-    .count-pill {
-      font-size: 12px; font-weight: 600; padding: 2px 9px;
+    .pill {
+      font-size: 11px; font-weight: 600; padding: 2px 8px;
       border-radius: 100px; background: var(--blue); color: white;
     }
 
-    /* Form */
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-    .fgrp { display: flex; flex-direction: column; gap: 6px; }
-    .fgrp label { font-size: 11px; font-weight: 600; color: var(--text-2); letter-spacing: 0.06em; text-transform: uppercase; }
-    .fgrp input {
-      padding: 11px 14px; border: 1.5px solid var(--border);
-      border-radius: 10px; font-size: 15px; font-family: inherit;
-      color: var(--text); background: white; outline: none; transition: border-color 0.15s;
+    .btn {
+      display: block; width: 100%; padding: 15px;
+      background: var(--blue); color: white;
+      border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: opacity 0.15s; text-align: center;
     }
-    .fgrp input:focus { border-color: var(--blue); }
-    .fgrp input::placeholder { color: var(--text-3); }
+    .btn:hover { opacity: 0.88; }
+    .btn:active { opacity: 0.76; }
+    .btn-outline {
+      background: none; color: var(--blue); border: 1.5px solid var(--blue);
+    }
+    .btn-danger { background: var(--danger); }
+    .btn-sm {
+      display: inline-block; width: auto; padding: 7px 14px;
+      font-size: 13px; border-radius: 8px;
+    }
+    .btn-gray { background: var(--border); color: var(--text-2); }
 
-    .level-section { margin-bottom: 16px; }
-    .level-section label { display: block; margin-bottom: 8px; font-size: 11px; font-weight: 600; color: var(--text-2); letter-spacing: 0.06em; text-transform: uppercase; }
+    .fgrp { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    .fgrp label { font-size: 11px; font-weight: 600; color: var(--text-2); letter-spacing: 0.06em; text-transform: uppercase; }
+    .fgrp input, .fgrp select {
+      padding: 12px 14px; border: 1.5px solid var(--border);
+      border-radius: 10px; font-size: 15px; font-family: inherit;
+      color: var(--text); background: white; outline: none;
+      transition: border-color 0.15s; appearance: none;
+    }
+    .fgrp input:focus, .fgrp select:focus { border-color: var(--blue); }
+
+    .search-wrap { position: relative; margin-bottom: 16px; }
+    .search-wrap input {
+      width: 100%; padding: 12px 14px 12px 40px;
+      border: 1.5px solid var(--border); border-radius: 12px;
+      font-size: 15px; font-family: inherit; background: white;
+      color: var(--text); outline: none;
+    }
+    .search-wrap input:focus { border-color: var(--blue); }
+    .search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--text-3); font-size: 16px; }
+
+    .lv-badge {
+      display: inline-block; font-size: 11px; font-weight: 700;
+      padding: 2px 8px; border-radius: 6px; letter-spacing: 0.02em;
+    }
+    .lv1 { background: var(--lv1-bg); color: var(--lv1); }
+    .lv2 { background: var(--lv2-bg); color: var(--lv2); }
+    .lv3 { background: var(--lv3-bg); color: var(--lv3); }
+    .lv4 { background: var(--lv4-bg); color: var(--lv4); }
+
+    /* ── 홈 화면 ── */
+    #screenHome { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 40px 24px; }
+    .home-logo { font-size: 28px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
+    .home-sub { font-size: 14px; color: var(--text-2); margin-bottom: 48px; }
+    .home-btns { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 14px; }
+    .home-btn {
+      padding: 22px 24px; border-radius: 18px; border: none;
+      cursor: pointer; font-family: inherit; text-align: left;
+      transition: transform 0.1s, box-shadow 0.1s;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .home-btn:active { transform: scale(0.97); }
+    .home-btn-tutor { background: var(--blue); color: white; }
+    .home-btn-admin { background: white; color: var(--text); border: 1.5px solid var(--border-s); }
+    .home-btn-icon { font-size: 28px; margin-bottom: 10px; display: block; }
+    .home-btn-title { font-size: 18px; font-weight: 700; display: block; margin-bottom: 4px; }
+    .home-btn-desc { font-size: 13px; opacity: 0.72; display: block; }
+
+    /* ── 강사 선택 화면 ── */
+    .instructor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .instructor-card {
+      padding: 18px; background: white; border: 1.5px solid var(--border-s);
+      border-radius: 14px; cursor: pointer; text-align: center;
+      transition: all 0.15s; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .instructor-card:hover { border-color: var(--blue); }
+    .instructor-card:active { transform: scale(0.96); }
+    .instructor-card-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: var(--blue-bg); color: var(--blue);
+      font-size: 20px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 10px;
+    }
+    .instructor-card-name { font-size: 15px; font-weight: 700; }
+
+    /* ── 회원 선택 화면 ── */
+    .member-list-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 0; border-bottom: 1px solid var(--border-s);
+      cursor: pointer; transition: opacity 0.15s;
+    }
+    .member-list-item:last-child { border-bottom: none; }
+    .member-list-item:active { opacity: 0.6; }
+    .member-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--blue-bg); color: var(--blue);
+      font-size: 15px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .member-info { flex: 1; }
+    .member-name { font-size: 15px; font-weight: 600; }
+    .member-phone { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+    .member-arrow { color: var(--text-3); font-size: 16px; }
+
+    /* ── 피드백 화면 ── */
+    .fb-header {
+      background: white; border-bottom: 1px solid var(--border-s);
+      padding: 16px 20px;
+    }
+    .fb-member-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .fb-member-name { font-size: 19px; font-weight: 700; }
+    .fb-section-title {
+      font-size: 13px; font-weight: 700; color: var(--text-2);
+      letter-spacing: 0.04em; text-transform: uppercase;
+      margin-bottom: 10px; margin-top: 20px;
+    }
+    .fb-section-title:first-of-type { margin-top: 0; }
+
+    .radio-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 14px; border-radius: 10px;
+      cursor: pointer; transition: background 0.1s;
+      border: 1.5px solid transparent; margin-bottom: 6px;
+      background: var(--bg);
+    }
+    .radio-item input[type=radio] { display: none; }
+    .radio-circle {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 2px solid var(--border); flex-shrink: 0;
+      transition: all 0.15s; background: white;
+    }
+    .radio-num { font-size: 11px; color: var(--text-3); font-weight: 600; flex-shrink: 0; }
+    .radio-name { font-size: 14px; font-weight: 500; }
+    .radio-item.checked-good { background: var(--good-bg); border-color: var(--good); }
+    .radio-item.checked-good .radio-circle { background: var(--good); border-color: var(--good); box-shadow: inset 0 0 0 4px white; }
+    .radio-item.checked-next { background: var(--next-bg); border-color: var(--next); }
+    .radio-item.checked-next .radio-circle { background: var(--next); border-color: var(--next); box-shadow: inset 0 0 0 4px white; }
+
+    .fb-date-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .fb-date-row label { font-size: 13px; color: var(--text-2); font-weight: 600; }
+    .fb-date-row input[type=date] {
+      border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 8px 10px; font-size: 14px; font-family: inherit;
+      color: var(--text); background: white; outline: none;
+    }
+
+    .btn-sms {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      width: calc(100% - 40px); max-width: 600px;
+      padding: 16px; background: var(--good); color: white;
+      border: none; border-radius: 14px; font-size: 16px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+      box-shadow: 0 4px 20px rgba(29,122,69,0.35);
+      transition: opacity 0.15s;
+    }
+    .btn-sms:active { opacity: 0.85; }
+    .btn-sms:disabled { background: var(--border); color: var(--text-3); box-shadow: none; }
+
+    /* ── 관리자 로그인 ── */
+    #screenAdminLogin { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 40px 24px; }
+    .admin-login-card { width: 100%; max-width: 360px; background: white; border-radius: 20px; padding: 32px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+    .admin-login-icon { font-size: 40px; text-align: center; margin-bottom: 16px; }
+    .admin-login-title { font-size: 21px; font-weight: 700; text-align: center; margin-bottom: 6px; }
+    .admin-login-sub { font-size: 13px; color: var(--text-2); text-align: center; margin-bottom: 24px; }
+
+    /* ── 관리자 탭 ── */
+    .tabs { display: flex; background: white; border-bottom: 1px solid var(--border-s); position: sticky; top: 52px; z-index: 90; }
+    .tab {
+      flex: 1; padding: 13px 8px; text-align: center;
+      font-size: 13px; font-weight: 600; color: var(--text-2);
+      border-bottom: 2px solid transparent; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tab.active { color: var(--blue); border-color: var(--blue); }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* 회원/강사 행 */
+    .row-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 0; border-bottom: 1px solid var(--border-s);
+    }
+    .row-item:last-child { border-bottom: none; }
+    .row-info { flex: 1; }
+    .row-name { font-size: 15px; font-weight: 600; }
+    .row-sub { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+    .row-actions { display: flex; gap: 6px; }
+    .btn-del {
+      padding: 5px 11px; background: var(--danger-bg); color: var(--danger);
+      border: none; border-radius: 6px; font-size: 12px; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+    }
+
+    /* 피드백 기록 */
+    .fb-record {
+      padding: 13px 0; border-bottom: 1px solid var(--border-s);
+    }
+    .fb-record:last-child { border-bottom: none; }
+    .fb-record-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .fb-record-name { font-size: 14px; font-weight: 700; }
+    .fb-record-date { font-size: 12px; color: var(--text-3); }
+    .fb-record-instructor { font-size: 11px; color: var(--text-2); background: var(--bg); padding: 2px 7px; border-radius: 5px; }
+    .fb-record-items { display: flex; flex-direction: column; gap: 3px; }
+    .fb-record-item { font-size: 13px; color: var(--text-2); }
+
+    /* 월간 리포트 */
+    .monthly-member-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 0; border-bottom: 1px solid var(--border-s);
+      cursor: pointer;
+    }
+    .monthly-member-item:last-child { border-bottom: none; }
+    .monthly-info { flex: 1; }
+    .monthly-name { font-size: 15px; font-weight: 600; }
+    .monthly-count { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+    .monthly-send-btn {
+      padding: 7px 14px; background: var(--good); color: white;
+      border: none; border-radius: 8px; font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+    }
+
+    /* ── 토스트 ── */
+    #toast {
+      position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,0.82); color: white;
+      padding: 11px 20px; border-radius: 20px; font-size: 14px;
+      opacity: 0; transition: opacity 0.25s; pointer-events: none;
+      white-space: nowrap; z-index: 9999;
+    }
+    #toast.show { opacity: 1; }
+
+    .empty { text-align: center; padding: 40px 0; color: var(--text-3); font-size: 14px; }
+
+    /* 레벨 선택 버튼 */
     .level-picker { display: flex; gap: 8px; }
     .lv-btn {
       flex: 1; padding: 10px 6px; border: 1.5px solid var(--border);
@@ -84,517 +309,227 @@
       transition: all 0.15s; text-align: center; line-height: 1.3;
     }
     .lv-btn span { display: block; font-size: 10px; font-weight: 400; margin-top: 2px; opacity: 0.7; }
-    .lv-btn:hover { border-color: var(--blue); color: var(--blue); }
     .lv-btn.active { background: var(--blue); border-color: var(--blue); color: white; }
 
-    .btn-add {
-      width: 100%; padding: 14px; background: var(--blue); color: white;
-      border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
-      cursor: pointer; font-family: inherit; transition: opacity 0.15s;
-    }
-    .btn-add:hover { opacity: 0.9; }
-
-    /* Member item */
-    .member-item {
-      display: flex; align-items: center; gap: 12px;
-      padding: 14px 0; border-bottom: 1px solid var(--border-s);
-    }
-    .member-item:last-child { border-bottom: none; padding-bottom: 0; }
-    .member-item:first-child { padding-top: 0; }
-    .avatar {
-      width: 42px; height: 42px; border-radius: 50%;
-      background: var(--blue-bg); color: var(--blue);
-      font-size: 16px; font-weight: 700;
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    }
-    .minfo { flex: 1; min-width: 0; }
-    .mname { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
-    .mphone { font-size: 12px; color: var(--text-2); margin-top: 1px; }
-    .mdate { font-size: 11px; color: var(--text-3); margin-top: 1px; }
-
-    .lv-badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 100px; white-space: nowrap; flex-shrink: 0; }
-    .b1 { background: var(--lv1b); color: var(--lv1c); }
-    .b2 { background: var(--lv2b); color: var(--lv2c); }
-    .b3 { background: var(--lv3b); color: var(--lv3c); }
-    .b4 { background: var(--lv4b); color: var(--lv4c); }
-
-    .mactions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; flex-wrap: wrap; }
-    .lv-sel {
-      padding: 7px 10px; border: 1.5px solid var(--border);
-      border-radius: 8px; font-size: 12px; font-weight: 600;
-      font-family: inherit; color: var(--text); background: white; cursor: pointer; outline: none;
-    }
-    .lv-sel:focus { border-color: var(--blue); }
-    .btn-sm {
-      padding: 7px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;
-      cursor: pointer; border: 1.5px solid var(--border); background: white;
-      color: var(--text-2); font-family: inherit; transition: all 0.15s; white-space: nowrap;
-    }
-    .btn-sm:hover { border-color: var(--blue); color: var(--blue); }
-    .btn-fb { background: var(--good-bg); border-color: transparent; color: var(--good); }
-    .btn-fb:hover { border-color: var(--good); background: var(--good-bg); color: var(--good); }
-    .btn-del { background: var(--danger-bg); border-color: transparent; color: var(--danger); }
-    .btn-del:hover { border-color: var(--danger); background: var(--danger-bg); }
-    .btn-go { background: var(--blue-bg); border-color: transparent; color: var(--blue); }
-    .btn-go:hover { border-color: var(--blue); background: var(--blue-bg); color: var(--blue); }
-    .btn-qr { background: #f5f0ff; border-color: transparent; color: #7c3aed; }
-    .btn-qr:hover { border-color: #7c3aed; background: #f5f0ff; color: #7c3aed; }
-
-    /* QR popup */
-    .qr-popup {
-      display: none; position: fixed; top: 0; right: 0; bottom: 0; left: 0;
-      background: rgba(0,0,0,0.4);
-      -webkit-backdrop-filter: blur(6px);
-      backdrop-filter: blur(6px);
-      z-index: 250; align-items: center; justify-content: center; padding: 24px;
-    }
-    .qr-popup.open { display: flex; }
-    .qr-box {
-      background: white; border-radius: 24px; padding: 32px 28px 24px;
-      width: 100%; max-width: 340px; text-align: center;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.2);
-    }
-    .qr-name { font-size: 19px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 4px; }
-    .qr-level { font-size: 13px; color: var(--text-2); margin-bottom: 24px; }
-    .qr-canvas-wrap {
-      display: inline-block; padding: 16px; background: white;
-      border-radius: 16px; border: 1.5px solid var(--border-s);
-      margin-bottom: 20px;
-    }
-    .qr-hint { font-size: 12px; color: var(--text-3); line-height: 1.6; margin-bottom: 20px; }
-    .btn-qr-close {
-      width: 100%; padding: 13px; background: #f5f5f7;
-      border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
-      cursor: pointer; font-family: inherit; color: var(--text-2);
-    }
-
-    /* Link popup */
-    .popup {
-      display: none; position: fixed; top: 0; right: 0; bottom: 0; left: 0;
-      background: rgba(0,0,0,0.3);
-      -webkit-backdrop-filter: blur(4px);
-      backdrop-filter: blur(4px);
-      z-index: 200; align-items: center; justify-content: center; padding: 24px;
-    }
-    .popup.open { display: flex; }
-    .popup-box {
-      background: white; border-radius: 20px; padding: 28px;
-      width: 100%; max-width: 500px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
-    }
-    .popup-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
-    .popup-desc { font-size: 13px; color: var(--text-2); margin-bottom: 18px; }
-    .popup-url {
-      background: #f5f5f7; border-radius: 10px; padding: 12px 14px;
-      font-size: 12px; color: var(--text-2); word-break: break-all; line-height: 1.6;
-      border: 1px solid var(--border-s); margin-bottom: 14px;
-    }
-    .popup-btns { display: flex; gap: 10px; }
-    .btn-copy { flex: 1; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
-    .btn-close { padding: 12px 20px; border: 1.5px solid var(--border); background: white; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; color: var(--text-2); }
-
-    /* Feedback sheet */
-    .fb-sheet {
-      display: none; position: fixed; top: 0; right: 0; bottom: 0; left: 0;
-      background: rgba(0,0,0,0.35);
-      -webkit-backdrop-filter: blur(4px);
-      backdrop-filter: blur(4px);
-      z-index: 210; align-items: flex-end; justify-content: center;
-    }
-    .fb-sheet.open { display: flex; }
-    .fb-inner {
-      background: white; border-radius: 24px 24px 0 0;
-      width: 100%; max-width: 620px; max-height: 92vh;
-      overflow-y: auto; padding: 24px 24px 40px;
-      box-shadow: 0 -8px 40px rgba(0,0,0,0.15);
-    }
-    .fb-handle {
-      width: 36px; height: 4px; background: var(--border);
-      border-radius: 2px; margin: 0 auto 20px;
-    }
-    .fb-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
-    .fb-title { font-size: 19px; font-weight: 700; letter-spacing: -0.4px; }
-    .fb-close {
-      width: 30px; height: 30px; border-radius: 50%;
-      background: var(--bg); border: none; cursor: pointer;
-      font-size: 14px; color: var(--text-2); display: flex; align-items: center; justify-content: center;
-    }
-    .fb-date-row { margin-bottom: 20px; }
-    .fb-date-row label { display: block; font-size: 11px; font-weight: 600; color: var(--text-2); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
-    .fb-date-row input[type="date"] {
-      padding: 10px 14px; border: 1.5px solid var(--border);
-      border-radius: 10px; font-size: 15px; font-family: inherit;
-      color: var(--text); background: white; outline: none; transition: border-color 0.15s;
-    }
-    .fb-date-row input[type="date"]:focus { border-color: var(--blue); }
-
-    .fb-section { margin-bottom: 20px; }
-    .fb-sec-label {
-      font-size: 13px; font-weight: 700; padding: 6px 12px;
-      border-radius: 8px; margin-bottom: 10px; display: inline-block;
-    }
-    .fb-sec-label.good { background: var(--good-l); color: var(--good); }
-    .fb-sec-label.next { background: var(--next-l); color: var(--next); }
-
-    .radio-list { display: flex; flex-direction: column; gap: 6px; }
-    .radio-item {
-      display: flex; align-items: center; gap: 12px;
-      padding: 12px 14px; border-radius: 11px;
-      cursor: pointer; border: 1.5px solid var(--border-s);
-      transition: all 0.15s; -webkit-user-select: none; user-select: none;
-    }
-    .radio-item:hover { border-color: var(--border); background: #fafafa; }
-    .radio-item input[type="radio"] { display: none; }
-    .radio-circle {
-      width: 18px; height: 18px; border-radius: 50%;
-      border: 1.5px solid var(--border); flex-shrink: 0;
-      transition: all 0.15s; display: flex; align-items: center; justify-content: center;
-    }
-    .radio-item.checked-good .radio-circle { border-color: var(--good); background: var(--good); }
-    .radio-item.checked-next .radio-circle { border-color: var(--next); background: var(--next); }
-    .radio-circle::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: white; opacity: 0; }
-    .radio-item.checked-good .radio-circle::after,
-    .radio-item.checked-next .radio-circle::after { opacity: 1; }
-    .radio-item.checked-good { border-color: rgba(29,122,69,0.35); background: var(--good-bg); }
-    .radio-item.checked-next { border-color: rgba(26,86,176,0.35); background: var(--next-bg); }
-    .radio-num { font-size: 11px; font-weight: 700; color: var(--text-3); min-width: 22px; }
-    .radio-name { font-size: 14px; color: var(--text); font-weight: 500; }
-
-    .fb-link-area { margin-bottom: 14px; display: none; }
-    .fb-link-box {
-      background: #f5f5f7; border-radius: 10px; padding: 12px 14px;
-      font-size: 12px; color: var(--text-2); word-break: break-all;
-      line-height: 1.6; border: 1px solid var(--border-s);
-    }
-    .fb-actions { display: flex; gap: 10px; }
-    .btn-gen {
-      flex: 1; padding: 14px; background: var(--good); color: white;
-      border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
-      cursor: pointer; font-family: inherit; transition: opacity 0.15s;
-    }
-    .btn-gen:hover { opacity: 0.9; }
-    .btn-copy-fb {
-      padding: 14px 18px; background: var(--blue); color: white;
-      border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
-      cursor: pointer; font-family: inherit; display: none;
-    }
-    .btn-kakao {
-      padding: 14px 18px; background: #FEE500; color: #3C1E1E;
-      border: none; border-radius: 12px; font-size: 15px; font-weight: 700;
-      cursor: pointer; font-family: inherit; display: none; white-space: nowrap;
-    }
-    .btn-kakao:hover { opacity: 0.9; }
-
-    /* 10회 달성 팝업 */
-    .ten-popup {
-      display: none; position: fixed; top: 0; right: 0; bottom: 0; left: 0;
-      background: rgba(0,0,0,0.5);
-      -webkit-backdrop-filter: blur(6px);
-      backdrop-filter: blur(6px);
-      z-index: 300; align-items: center; justify-content: center; padding: 24px;
-    }
-    .ten-popup.open { display: flex; }
-    .ten-box {
-      background: white; border-radius: 24px; padding: 32px 28px 24px;
-      width: 100%; max-width: 400px;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.22);
-    }
-    .ten-badge {
-      display: inline-block; font-size: 12px; font-weight: 700;
-      padding: 4px 12px; border-radius: 100px; margin-bottom: 14px;
-    }
-    .ten-title { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }
-    .ten-sub { font-size: 14px; color: var(--text-2); line-height: 1.6; margin-bottom: 20px; }
-    .ten-summary {
-      border-radius: 14px; padding: 16px 18px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px;
-    }
-    .ten-item { display: flex; flex-direction: column; gap: 3px; }
-    .ten-item-label { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
-    .ten-item-name { font-size: 15px; font-weight: 700; }
-    .ten-item-count { font-size: 12px; color: var(--text-3); }
-    .ten-actions { display: flex; flex-direction: column; gap: 10px; }
-    .btn-ten-kakao {
-      width: 100%; padding: 15px; background: #FEE500; color: #3C1E1E;
-      border: none; border-radius: 14px; font-size: 16px; font-weight: 700;
-      cursor: pointer; font-family: inherit;
-    }
-    .btn-ten-close {
-      width: 100%; padding: 13px; background: #f5f5f7;
-      border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
-      cursor: pointer; font-family: inherit; color: var(--text-2);
-    }
-
-    /* Empty */
-    .empty { text-align: center; padding: 40px 20px; color: var(--text-3); font-size: 14px; }
-
-    /* Toast */
-    .toast {
-      position: fixed; bottom: 28px; left: 50%;
-      transform: translateX(-50%) translateY(8px);
-      background: var(--text); color: white;
-      font-size: 13px; font-weight: 500; padding: 10px 22px;
-      border-radius: 100px; opacity: 0; pointer-events: none;
-      transition: all 0.28s; z-index: 300; white-space: nowrap;
-    }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-    @media (max-width: 600px) {
-      .form-row { grid-template-columns: 1fr; }
-      .container { padding: 20px 16px 60px; }
-      .card { padding: 20px; }
-      .lv-btn span { display: none; }
-      .fb-inner { padding: 20px 16px 40px; }
+    @media (max-width: 480px) {
+      .instructor-grid { grid-template-columns: 1fr 1fr; }
+      .wrap { padding: 20px 16px 100px; }
     }
   </style>
 </head>
 <body>
 
-<div class="topbar">
-  <span class="brand">Hello Body</span>
-  <span class="brand-sep">·</span>
-  <span class="brand-sub">관리자 패널</span>
+<!-- ── 홈 ── -->
+<div id="screenHome" class="screen active">
+  <div class="home-logo">Hello Body</div>
+  <div class="home-sub">필라테스 피드백 시스템</div>
+  <div class="home-btns">
+    <button class="home-btn home-btn-tutor" onclick="goTutor()">
+      <span class="home-btn-icon">🏃</span>
+      <span class="home-btn-title">강사 모드</span>
+      <span class="home-btn-desc">수업 후 회원 피드백 전송</span>
+    </button>
+    <button class="home-btn home-btn-admin" onclick="goAdminLogin()">
+      <span class="home-btn-icon">⚙️</span>
+      <span class="home-btn-title">관리자 모드</span>
+      <span class="home-btn-desc">회원·강사 관리 및 데이터 조회</span>
+    </button>
+  </div>
 </div>
 
-<div class="container">
-  <!-- Add member -->
-  <div class="card">
-    <div class="card-title">회원 등록</div>
-    <div class="form-row">
-      <div class="fgrp">
-        <label>이름</label>
-        <input type="text" id="inp-name" placeholder="홍길동" autocomplete="off">
+<!-- ── 강사 선택 ── -->
+<div id="screenTutor" class="screen">
+  <div class="topbar">
+    <button class="topbar-back" onclick="goHome()">← 홈</button>
+    <span class="topbar-title">강사 선택</span>
+  </div>
+  <div class="wrap">
+    <div class="card">
+      <div class="card-title">오늘 수업한 강사를 선택해주세요</div>
+      <div class="instructor-grid" id="instructorGrid">
+        <div class="empty">등록된 강사가 없습니다</div>
       </div>
-      <div class="fgrp">
-        <label>전화번호</label>
-        <input type="tel" id="inp-phone" placeholder="01012345678" autocomplete="off">
+    </div>
+  </div>
+</div>
+
+<!-- ── 회원 선택 ── -->
+<div id="screenMember" class="screen">
+  <div class="topbar">
+    <button class="topbar-back" onclick="goTutor()">← 강사 선택</button>
+    <div style="flex:1">
+      <div class="topbar-title" id="tutorNameBar">강사</div>
+      <div class="topbar-sub">회원을 선택해주세요</div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="memberSearch" placeholder="회원 이름으로 검색" oninput="renderMemberList()">
+    </div>
+    <div class="card" style="padding: 6px 16px;">
+      <div id="memberList"><div class="empty">등록된 회원이 없습니다</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 피드백 입력 ── -->
+<div id="screenFeedback" class="screen">
+  <div class="topbar">
+    <button class="topbar-back" onclick="goMemberSelect()">← 회원 선택</button>
+    <div style="flex:1">
+      <div class="topbar-title" id="fbMemberName">회원</div>
+      <div class="topbar-sub" id="fbInstructorName"></div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="card">
+      <div class="fb-date-row">
+        <label>수업일</label>
+        <input type="date" id="fbDate">
+      </div>
+      <div class="fb-section-title" style="color: var(--good)">✅ 오늘 잘했어요</div>
+      <div id="fbGoodList"></div>
+      <div class="fb-section-title" style="color: var(--next); margin-top: 24px">📌 다음에 더 신경써봐요</div>
+      <div id="fbNextList"></div>
+    </div>
+    <div style="height: 80px"></div>
+  </div>
+  <button class="btn-sms" id="btnSms" onclick="sendSms()">📱 문자 전송</button>
+</div>
+
+<!-- ── 관리자 로그인 ── -->
+<div id="screenAdminLogin" class="screen">
+  <div class="admin-login-card">
+    <div class="admin-login-icon">🔐</div>
+    <div class="admin-login-title">관리자 모드</div>
+    <div class="admin-login-sub">관리자 비밀번호를 입력해주세요</div>
+    <div class="fgrp">
+      <input type="password" id="adminPwInput" placeholder="비밀번호" onkeydown="if(event.key==='Enter')checkAdminPw()">
+    </div>
+    <button class="btn" onclick="checkAdminPw()">확인</button>
+    <button class="btn btn-outline" style="margin-top:10px" onclick="goHome()">취소</button>
+  </div>
+</div>
+
+<!-- ── 관리자 대시보드 ── -->
+<div id="screenAdmin" class="screen">
+  <div class="topbar">
+    <span class="topbar-title">관리자</span>
+    <button class="btn btn-sm btn-outline" style="width:auto; font-size:13px" onclick="goHome()">나가기</button>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('members')">회원</div>
+    <div class="tab" onclick="switchTab('instructors')">강사</div>
+    <div class="tab" onclick="switchTab('records')">피드백 기록</div>
+    <div class="tab" onclick="switchTab('monthly')">월간 리포트</div>
+  </div>
+
+  <!-- 회원 관리 -->
+  <div id="tab-members" class="tab-content active">
+    <div class="wrap">
+      <div class="card">
+        <div class="card-title">회원 등록</div>
+        <div class="fgrp"><label>이름</label><input type="text" id="inp-name" placeholder="홍길동"></div>
+        <div class="fgrp"><label>전화번호</label><input type="tel" id="inp-phone" placeholder="010-0000-0000"></div>
+        <div class="fgrp">
+          <label>레벨</label>
+          <div class="level-picker">
+            <button class="lv-btn" data-lv="1" onclick="setAddLevel(1)">레벨 1<span>Awakening</span></button>
+            <button class="lv-btn" data-lv="2" onclick="setAddLevel(2)">레벨 2<span>Alignment</span></button>
+            <button class="lv-btn" data-lv="3" onclick="setAddLevel(3)">레벨 3<span>Connection</span></button>
+            <button class="lv-btn" data-lv="4" onclick="setAddLevel(4)">레벨 4<span>Flow</span></button>
+          </div>
+        </div>
+        <button class="btn" onclick="addMember()">회원 등록</button>
+      </div>
+      <div class="card" style="padding: 6px 16px">
+        <div style="display:flex; align-items:center; justify-content:space-between; padding: 12px 0 8px">
+          <span style="font-size:15px; font-weight:700">전체 회원</span>
+          <span class="pill" id="memberCount">0</span>
+        </div>
+        <div id="adminMemberList"><div class="empty">회원이 없습니다</div></div>
       </div>
     </div>
-    <div class="level-section">
-      <label>레벨 지정</label>
-      <div class="level-picker">
-        <button class="lv-btn active" data-l="1">L1<span>Awakening</span></button>
-        <button class="lv-btn" data-l="2">L2<span>Alignment</span></button>
-        <button class="lv-btn" data-l="3">L3<span>Connection</span></button>
-        <button class="lv-btn" data-l="4">L4<span>Flow</span></button>
+  </div>
+
+  <!-- 강사 관리 -->
+  <div id="tab-instructors" class="tab-content">
+    <div class="wrap">
+      <div class="card">
+        <div class="card-title">강사 등록</div>
+        <div class="fgrp"><label>이름</label><input type="text" id="inp-instructor-name" placeholder="강사 이름"></div>
+        <button class="btn" onclick="addInstructor()">강사 등록</button>
+      </div>
+      <div class="card" style="padding: 6px 16px">
+        <div style="display:flex; align-items:center; justify-content:space-between; padding: 12px 0 8px">
+          <span style="font-size:15px; font-weight:700">전체 강사</span>
+          <span class="pill" id="instructorCount">0</span>
+        </div>
+        <div id="adminInstructorList"><div class="empty">강사가 없습니다</div></div>
       </div>
     </div>
-    <button class="btn-add" onclick="addMember()">회원 등록하기</button>
   </div>
 
-  <!-- Member list -->
-  <div class="card">
-    <div class="card-title">
-      등록 회원
-      <span class="count-pill" id="cnt">0</span>
-    </div>
-    <div id="mlist"></div>
-  </div>
-</div>
-
-<!-- Link popup -->
-<div class="popup" id="linkPopup">
-  <div class="popup-box">
-    <div class="popup-title" id="popTitle"></div>
-    <div class="popup-desc">아래 링크를 복사해서 회원에게 보내주세요.<br>회원은 이 링크로 자신의 대시보드에 접속할 수 있어요.</div>
-    <div class="popup-url" id="popUrl"></div>
-    <div class="popup-btns">
-      <button class="btn-copy" onclick="doCopy()">링크 복사</button>
-      <button class="btn-close" onclick="closePopup()">닫기</button>
+  <!-- 피드백 기록 -->
+  <div id="tab-records" class="tab-content">
+    <div class="wrap">
+      <div class="card" style="padding:12px 16px 6px">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px">
+          <span style="font-size:15px; font-weight:700">피드백 기록</span>
+          <span class="pill" id="recordCount">0</span>
+        </div>
+        <div class="search-wrap" style="margin-bottom:8px">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="recordSearch" placeholder="회원명 또는 강사명 검색" oninput="renderRecords()">
+        </div>
+        <div id="recordList"><div class="empty">기록이 없습니다</div></div>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Feedback sheet -->
-<div class="fb-sheet" id="fbSheet">
-  <div class="fb-inner">
-    <div class="fb-handle"></div>
-    <div class="fb-head">
-      <div class="fb-title" id="fbTitle">피드백 입력</div>
-      <button class="fb-close" onclick="closeFb()">✕</button>
-    </div>
-
-    <div class="fb-date-row">
-      <label>수업 날짜</label>
-      <input type="date" id="fbDate">
-    </div>
-
-    <div class="fb-section">
-      <div class="fb-sec-label good">오늘 잘했어요 — 1개 선택</div>
-      <div class="radio-list" id="fbGoodList"></div>
-    </div>
-
-    <div class="fb-section">
-      <div class="fb-sec-label next">다음번에 더 신경써봐요 — 1개 선택</div>
-      <div class="radio-list" id="fbNextList"></div>
-    </div>
-
-    <div class="fb-link-area" id="fbLinkArea">
-      <div style="font-size:11px;font-weight:600;color:var(--text-2);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;">생성된 피드백 링크</div>
-      <div class="fb-link-box" id="fbLinkBox"></div>
-    </div>
-
-    <div class="fb-actions">
-      <button class="btn-gen" onclick="genFbLink()">피드백 링크 생성</button>
-      <button class="btn-copy-fb" id="btnCopyFb" onclick="copyFbLink()">복사</button>
-      <button class="btn-kakao" id="btnKakaoFb" onclick="sendKakaoFb()">카카오 전송</button>
+  <!-- 월간 리포트 -->
+  <div id="tab-monthly" class="tab-content">
+    <div class="wrap">
+      <div class="card">
+        <div class="card-title">월간 리포트 전송</div>
+        <p style="font-size:13px; color:var(--text-2); margin-bottom:16px; line-height:1.6">
+          회원의 지난 30일 피드백을 분석해 문자로 전송합니다.<br>
+          전송 버튼을 누르면 문자 앱이 열립니다.
+        </p>
+        <div id="monthlyList"><div class="empty">회원이 없습니다</div></div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- 10회 달성 팝업 -->
-<div class="ten-popup" id="tenPopup">
-  <div class="ten-box">
-    <div class="ten-badge" id="tenBadge"></div>
-    <div class="ten-title" id="tenTitle"></div>
-    <div class="ten-sub" id="tenSub"></div>
-    <div class="ten-summary" id="tenSummary"></div>
-    <div class="ten-actions">
-      <button class="btn-ten-kakao" id="btnTenKakao">카카오톡으로 리포트 전송</button>
-      <button class="btn-ten-close" onclick="closeTenPopup()">나중에 보내기</button>
-    </div>
-  </div>
-</div>
+<!-- 토스트 -->
+<div id="toast"></div>
 
-<!-- QR popup -->
-<div class="qr-popup" id="qrPopup">
-  <div class="qr-box">
-    <div class="qr-name" id="qrName"></div>
-    <div class="qr-level" id="qrLevel"></div>
-    <div class="qr-canvas-wrap">
-      <div id="qrCanvas"></div>
-    </div>
-    <div class="qr-hint">카메라로 QR코드를 스캔하면<br>회원 대시보드로 바로 접속돼요.</div>
-    <button class="btn-qr-close" onclick="closeQR()">닫기</button>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"></script>
 <script>
-if (typeof Kakao !== 'undefined') {
-  Kakao.init('40e752bc4c99343d02b0e4d981cd9441');
-}
-const DB = 'hb_members';
-let selLevel = 1;
-let currentLink = '';
-let fbMember = null;
-let fbGenUrl = '';
-let fbGoodSel = null;
-let fbNextSel = null;
+// ── 데이터 ──
+const ADMIN_PW_KEY = 'hb_admin_pw';
+const MEMBERS_KEY  = 'hb_members';
+const INSTRS_KEY   = 'hb_instructors';
+const FB_KEY       = 'hb_feedback';
 
-// Level picker (add member)
-document.querySelectorAll('.lv-btn').forEach(b => {
-  b.addEventListener('click', () => {
-    document.querySelectorAll('.lv-btn').forEach(x => x.classList.remove('active'));
-    b.classList.add('active');
-    selLevel = parseInt(b.dataset.l);
-  });
-});
+function getMembers()     { return JSON.parse(localStorage.getItem(MEMBERS_KEY)  || '[]'); }
+function setMembers(d)    { localStorage.setItem(MEMBERS_KEY, JSON.stringify(d)); }
+function getInstructors() { return JSON.parse(localStorage.getItem(INSTRS_KEY)   || '[]'); }
+function setInstructors(d){ localStorage.setItem(INSTRS_KEY, JSON.stringify(d)); }
+function getFeedback()    { return JSON.parse(localStorage.getItem(FB_KEY)       || '[]'); }
+function setFeedback(d)   { localStorage.setItem(FB_KEY, JSON.stringify(d)); }
+function getAdminPw()     { return localStorage.getItem(ADMIN_PW_KEY) || '1234'; }
 
-function getAll() { try { return JSON.parse(localStorage.getItem(DB)||'[]'); } catch { return []; } }
-function setAll(a) { localStorage.setItem(DB, JSON.stringify(a)); }
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-function fmtPhone(p) {
-  p = p.replace(/\D/g,'');
-  if (p.length===11) return p.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
-  if (p.length===10) return p.replace(/(\d{3})(\d{3,4})(\d{4})/, '$1-$2-$3');
-  return p;
-}
-function maskPhone(p) {
-  const d = p.replace(/\D/g,'');
-  return d.length>=8 ? d.slice(0,3)+'-****-'+d.slice(-4) : p;
-}
-function makeLink(m) {
-  const memberBase = 'https://feedback-member.vercel.app/';
-  const phone = m.phone.replace(/\D/g,'');
-  return memberBase + '?p=' + phone + '&l=' + m.level;
+function fmtPhone(s) {
+  const d = s.replace(/\D/g,'');
+  if (d.length === 11) return d.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+  if (d.length === 10) return d.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+  return s;
 }
 
-function addMember() {
-  const name = document.getElementById('inp-name').value.trim();
-  const raw = document.getElementById('inp-phone').value.replace(/\D/g,'');
-  if (!name) { toast('이름을 입력해주세요'); return; }
-  if (raw.length<8) { toast('올바른 전화번호를 입력해주세요'); return; }
-  const all = getAll();
-  const m = { id:uid(), name, phone:fmtPhone(raw), level:selLevel, created:new Date().toISOString().slice(0,10) };
-  all.push(m);
-  setAll(all);
-  document.getElementById('inp-name').value = '';
-  document.getElementById('inp-phone').value = '';
-  render();
-  toast(name+'님이 등록되었습니다');
-}
-
-function setLevel(id, lv) {
-  const all = getAll();
-  const m = all.find(x=>x.id===id);
-  if (m) { m.level=parseInt(lv); setAll(all); render(); toast('레벨이 변경되었습니다'); }
-}
-
-// QR popup
-function showQR(id) {
-  const m = getAll().find(x=>x.id===id);
-  if (!m) return;
-  const lvNames = ['','Awakening','Alignment','Connection','Flow'];
-  document.getElementById('qrName').textContent = m.name + '님';
-  document.getElementById('qrLevel').textContent = 'L' + m.level + ' · ' + lvNames[m.level];
-
-  const wrap = document.getElementById('qrCanvas');
-  wrap.innerHTML = '';
-  new QRCode(wrap, {
-    text: makeLink(m),
-    width: 220,
-    height: 220,
-    colorDark: '#1d1d1f',
-    colorLight: '#ffffff',
-    correctLevel: QRCode.CorrectLevel.M
-  });
-  document.getElementById('qrPopup').classList.add('open');
-}
-function closeQR() { document.getElementById('qrPopup').classList.remove('open'); }
-document.addEventListener('click', e => {
-  const popup = document.getElementById('qrPopup');
-  if (e.target === popup) closeQR();
-});
-
-function goMember(id) {
-  const m = getAll().find(x=>x.id===id);
-  if (!m) return;
-  window.open(makeLink(m), '_blank');
-}
-
-function delMember(id) {
-  const all = getAll();
-  const m = all.find(x=>x.id===id);
-  if (!m) return;
-  if (!confirm(m.name+'님을 삭제할까요?')) return;
-  setAll(all.filter(x=>x.id!==id));
-  render();
-  toast('삭제되었습니다');
-}
-
-// Link popup
-function showLink(id) {
-  const m = getAll().find(x=>x.id===id);
-  if (!m) return;
-  currentLink = makeLink(m);
-  document.getElementById('popTitle').textContent = m.name+'님의 접속 링크';
-  document.getElementById('popUrl').textContent = currentLink;
-  document.getElementById('linkPopup').classList.add('open');
-}
-function closePopup() { document.getElementById('linkPopup').classList.remove('open'); }
-function doCopy() {
-  copyText(currentLink);
-  toast('링크가 복사되었습니다');
-  closePopup();
-}
-document.getElementById('linkPopup').addEventListener('click', e => {
-  if (e.target===document.getElementById('linkPopup')) closePopup();
-});
-
-// ── FEEDBACK ITEMS ──
+// ── 피드백 항목 ──
 const ITEMS = {
   1:[{n:'01',name:'기본 호흡 인지'},{n:'02',name:'윗가슴 통제'},{n:'03',name:'흉곽(갈비뼈) 움직임'},
      {n:'04',name:'명치(상복부) 텐션 유지'},{n:'05',name:'상/하복부 동시 통제'},{n:'06',name:'골반 기저부 연결'},
@@ -611,287 +546,382 @@ const ITEMS = {
      {n:'07',name:'중력 저항력'},{n:'08',name:'동작의 유연성'},{n:'09',name:'호흡-동작 완벽 조화'},{n:'10',name:'스스로 인지 및 수정'}]
 };
 
-// Feedback sheet
-function openFb(id) {
-  fbMember = getAll().find(x=>x.id===id);
-  if (!fbMember) return;
-  fbGoodSel = null; fbNextSel = null; fbGenUrl = '';
+const LV_NAME = { 1:'Awakening', 2:'Alignment', 3:'Connection', 4:'Flow' };
+const LV_COLOR = { 1:'lv1', 2:'lv2', 3:'lv3', 4:'lv4' };
 
-  const lvNames = ['','Awakening','Alignment','Connection','Flow'];
-  document.getElementById('fbTitle').textContent = fbMember.name+'님 피드백 입력 — L'+fbMember.level;
+// ── 상태 ──
+let currentInstructor = null;
+let currentMember = null;
+let fbGoodSel = null;
+let fbNextSel = null;
+let addLevel = 1;
 
-  const today = new Date().toISOString().slice(0,10);
-  document.getElementById('fbDate').value = today;
+// ── 토스트 ──
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2400);
+}
 
-  const items = ITEMS[fbMember.level];
+// ── 화면 전환 ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
 
+function goHome() { showScreen('screenHome'); }
+
+function goTutor() {
+  renderInstructors();
+  showScreen('screenTutor');
+}
+
+function goMemberSelect() {
+  document.getElementById('memberSearch').value = '';
+  renderMemberList();
+  showScreen('screenMember');
+}
+
+function goAdminLogin() { showScreen('screenAdminLogin'); document.getElementById('adminPwInput').value = ''; }
+
+// ── 강사 선택 ──
+function renderInstructors() {
+  const list = getInstructors();
+  const grid = document.getElementById('instructorGrid');
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1">등록된 강사가 없습니다<br><small style="color:var(--text-3);margin-top:4px;display:block">관리자 모드에서 강사를 등록해주세요</small></div>';
+    return;
+  }
+  grid.innerHTML = list.map(i => `
+    <div class="instructor-card" onclick="selectInstructor('${i.id}')">
+      <div class="instructor-card-avatar">${i.name.charAt(0)}</div>
+      <div class="instructor-card-name">${i.name}</div>
+    </div>
+  `).join('');
+}
+
+function selectInstructor(id) {
+  currentInstructor = getInstructors().find(i => i.id === id);
+  if (!currentInstructor) return;
+  document.getElementById('tutorNameBar').textContent = currentInstructor.name + ' 강사';
+  goMemberSelect();
+}
+
+// ── 회원 선택 ──
+function renderMemberList() {
+  const q = (document.getElementById('memberSearch').value || '').trim().toLowerCase();
+  let list = getMembers();
+  if (q) list = list.filter(m => m.name.toLowerCase().includes(q));
+  const el = document.getElementById('memberList');
+  if (!list.length) { el.innerHTML = '<div class="empty">검색 결과가 없습니다</div>'; return; }
+  el.innerHTML = list.map(m => `
+    <div class="member-list-item" onclick="selectMember('${m.id}')">
+      <div class="member-avatar">${m.name.charAt(0)}</div>
+      <div class="member-info">
+        <div class="member-name">${m.name}</div>
+        <div class="member-phone">${m.phone} · <span class="lv-badge ${LV_COLOR[m.level]}">레벨${m.level} ${LV_NAME[m.level]}</span></div>
+      </div>
+      <div class="member-arrow">›</div>
+    </div>
+  `).join('');
+}
+
+function selectMember(id) {
+  currentMember = getMembers().find(m => m.id === id);
+  if (!currentMember) return;
+  openFeedback();
+}
+
+// ── 피드백 입력 ──
+function openFeedback() {
+  fbGoodSel = null; fbNextSel = null;
+  document.getElementById('fbMemberName').textContent = currentMember.name + '님';
+  document.getElementById('fbInstructorName').textContent = currentInstructor.name + ' 강사';
+  document.getElementById('fbDate').value = new Date().toISOString().slice(0, 10);
+
+  const items = ITEMS[currentMember.level];
   function buildList(containerId, groupName, cls) {
     document.getElementById(containerId).innerHTML = items.map(item => `
       <label class="radio-item" onclick="pickItem('${groupName}','${item.n}',this,'${cls}')">
         <input type="radio" name="${groupName}" value="${item.n}">
-        <span class="radio-circle"></span>
+        <div class="radio-circle"></div>
         <span class="radio-num">${item.n}</span>
         <span class="radio-name">${item.name}</span>
       </label>
     `).join('');
   }
+  buildList('fbGoodList', 'fbGood', 'good');
+  buildList('fbNextList', 'fbNext', 'next');
 
-  buildList('fbGoodList','fbGood','good');
-  buildList('fbNextList','fbNext','next');
-
-  document.getElementById('fbLinkArea').style.display = 'none';
-  document.getElementById('btnCopyFb').style.display = 'none';
-
-  document.getElementById('fbSheet').classList.add('open');
+  showScreen('screenFeedback');
 }
 
 function pickItem(group, val, el, cls) {
-  const list = document.getElementById(group==='fbGood' ? 'fbGoodList' : 'fbNextList');
-  list.querySelectorAll('.radio-item').forEach(x => { x.classList.remove('checked-good','checked-next'); });
-  el.classList.add('checked-'+cls);
-  if (group==='fbGood') fbGoodSel = val;
+  const containerId = group === 'fbGood' ? 'fbGoodList' : 'fbNextList';
+  document.getElementById(containerId).querySelectorAll('.radio-item')
+    .forEach(x => x.classList.remove('checked-good', 'checked-next'));
+  el.classList.add('checked-' + cls);
+  if (group === 'fbGood') fbGoodSel = val;
   else fbNextSel = val;
-  // Reset generated link
-  document.getElementById('fbLinkArea').style.display = 'none';
-  document.getElementById('btnCopyFb').style.display = 'none';
-  fbGenUrl = '';
 }
 
-function genFbLink() {
+function sendSms() {
+  if (!fbGoodSel) { toast('✅ 잘한 항목을 선택해주세요'); return; }
+  if (!fbNextSel) { toast('📌 다음 신경쓸 항목을 선택해주세요'); return; }
+
+  const lv = currentMember.level;
   const date = document.getElementById('fbDate').value;
-  if (!date) { toast('날짜를 선택해주세요'); return; }
-  if (!fbGoodSel) { toast('"오늘 잘했어요" 항목을 선택해주세요'); return; }
-  if (!fbNextSel) { toast('"다음번에 더 신경써봐요" 항목을 선택해주세요'); return; }
-
-  const phone = fbMember.phone.replace(/\D/g,'');
-  const fbToken = btoa(JSON.stringify({d:date, g:fbGoodSel, n:fbNextSel}));
-  const memberBase = 'https://feedback-member.vercel.app/';
-  fbGenUrl = memberBase+'?p='+phone+'&l='+fbMember.level+'&fb='+fbToken;
-
-  // 피드백 기록 저장 및 횟수 누적
-  const all = getAll();
-  const mIdx = all.findIndex(x => x.id === fbMember.id);
-  if (mIdx >= 0) {
-    if (!all[mIdx].fbHistory) all[mIdx].fbHistory = [];
-    // 같은 날짜 중복 방지
-    all[mIdx].fbHistory = all[mIdx].fbHistory.filter(h => h.d !== date);
-    all[mIdx].fbHistory.push({ d: date, g: fbGoodSel, n: fbNextSel });
-    all[mIdx].fbCount = all[mIdx].fbHistory.length;
-    setAll(all);
-    fbMember = all[mIdx];
-  }
-
-  document.getElementById('fbLinkBox').textContent = fbGenUrl;
-  document.getElementById('fbLinkArea').style.display = 'block';
-  document.getElementById('btnCopyFb').style.display = 'inline-block';
-  document.getElementById('btnKakaoFb').style.display = 'inline-block';
-
-  // 10회 달성 체크
-  if (fbMember.fbCount && fbMember.fbCount % 10 === 0) {
-    setTimeout(() => showTenReport(fbMember), 600);
-  }
-}
-
-// ── 레벨별 색상 ──
-const LV_COLOR = {
-  1: { bg: '#b45309', pill: 'rgba(0,0,0,0.18)', pillText: '#fef3c7', name: 'Awakening' },
-  2: { bg: '#1d7a45', pill: 'rgba(0,0,0,0.18)', pillText: '#d1f0e0', name: 'Alignment' },
-  3: { bg: '#185fa5', pill: 'rgba(0,0,0,0.18)', pillText: '#c7d9f8', name: 'Connection' },
-  4: { bg: '#a32d2d', pill: 'rgba(0,0,0,0.18)', pillText: '#ffc5c5', name: 'Flow' },
-};
-
-// ── 카카오 일반 피드백 전송 ──
-function sendKakaoFb() {
-  if (!fbGenUrl || !fbMember) return;
-  const lv = fbMember.level;
-  const lvc = LV_COLOR[lv];
   const goodItem = ITEMS[lv].find(i => i.n === fbGoodSel);
   const nextItem = ITEMS[lv].find(i => i.n === fbNextSel);
-  const date = document.getElementById('fbDate').value;
 
-  const title = fbMember.name + '님의 오늘 수업 피드백';
-  const body =
-    '📋 ' + fbMember.name + '님의 오늘 수업 피드백\n' +
-    '레벨' + lv + ' · ' + lvc.name + '  |  ' + date + '\n\n' +
-    '✅ 잘했어요: ' + (goodItem ? goodItem.name : '') + '\n' +
-    '📌 다음에 더 신경써봐요: ' + (nextItem ? nextItem.name : '') + '\n\n' +
-    '👉 내 대시보드 보기: ' + fbGenUrl;
-
-  shareMessage(title, body, fbGenUrl);
-}
-
-// 공유 핵심 함수 — iOS 네이티브 공유 시트 우선, 실패 시 클립보드
-function shareMessage(title, body, url) {
-  if (navigator.share) {
-    navigator.share({ title: title, text: body, url: url })
-      .then(() => toast('✅ 공유가 완료됐어요!'))
-      .catch(err => {
-        if (err.name !== 'AbortError') {
-          copyAndToast(body);
-        }
-      });
-  } else {
-    copyAndToast(body);
-  }
-}
-
-function copyAndToast(text) {
-  navigator.clipboard.writeText(text)
-    .then(() => toast('📋 메시지가 복사됐어요! 카카오톡에 붙여넣기 해주세요.'))
-    .catch(() => {
-      // 구형 방식 fallback
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      toast('📋 메시지가 복사됐어요! 카카오톡에 붙여넣기 해주세요.');
-    });
-}
-
-// ── 10회 달성 팝업 ──
-let tenReportMember = null;
-let tenReportKakaoFn = null;
-
-function showTenReport(m) {
-  tenReportMember = m;
-  const lv = m.level;
-  const lvc = LV_COLOR[lv];
-  const history = m.fbHistory || [];
-  const count = m.fbCount;
-
-  // 빈도 계산
-  const goodCount = {}, nextCount = {};
-  history.forEach(h => {
-    goodCount[h.g] = (goodCount[h.g] || 0) + 1;
-    nextCount[h.n] = (nextCount[h.n] || 0) + 1;
+  // 피드백 저장
+  const fb = getFeedback();
+  fb.unshift({
+    id: uid(),
+    memberId: currentMember.id,
+    memberName: currentMember.name,
+    instructorId: currentInstructor.id,
+    instructorName: currentInstructor.name,
+    date,
+    level: lv,
+    good: fbGoodSel,
+    goodName: goodItem ? goodItem.name : '',
+    next: fbNextSel,
+    nextName: nextItem ? nextItem.name : '',
   });
-  const topGood = Object.entries(goodCount).sort((a,b) => b[1]-a[1])[0];
-  const topNext = Object.entries(nextCount).sort((a,b) => b[1]-a[1])[0];
-  const topGoodItem = topGood ? ITEMS[lv].find(i => i.n === topGood[0]) : null;
-  const topNextItem = topNext ? ITEMS[lv].find(i => i.n === topNext[0]) : null;
+  setFeedback(fb);
 
-  // 팝업 내용
-  const badge = document.getElementById('tenBadge');
-  badge.textContent = count + '회 달성!';
-  badge.style.background = lvc.bg + '22';
-  badge.style.color = lvc.bg;
+  // SMS 전송
+  const phone = currentMember.phone.replace(/\D/g, '');
+  const msg =
+    '📋 ' + currentMember.name + '님 오늘 수업 피드백\n' +
+    '레벨' + lv + ' · ' + LV_NAME[lv] + '  |  ' + date + '\n\n' +
+    '✅ 잘했어요\n' + (goodItem ? goodItem.name : '') + '\n\n' +
+    '📌 다음에 더 신경써봐요\n' + (nextItem ? nextItem.name : '');
 
-  document.getElementById('tenTitle').textContent = m.name + '님 ' + count + '회 완료!';
-  document.getElementById('tenSub').textContent = '10회 리포트를 카카오톡으로 전송해드릴게요.\n가장 자주 칭찬받은 항목과 집중이 필요한 항목이에요.';
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const sep = isIOS ? '&' : '?';
+  window.location.href = 'sms:' + phone + sep + 'body=' + encodeURIComponent(msg);
 
-  document.getElementById('tenSummary').style.background = lvc.bg + '11';
-  document.getElementById('tenSummary').style.border = '0.5px solid ' + lvc.bg + '44';
-  document.getElementById('tenSummary').innerHTML = `
-    <div class="ten-item">
-      <div class="ten-item-label" style="color:${lvc.bg}">✅ 가장 잘한 것</div>
-      <div class="ten-item-name">${topGoodItem ? topGoodItem.name : '-'}</div>
-      <div class="ten-item-count">${topGood ? topGood[1] + '회 칭찬' : ''}</div>
-    </div>
-    <div style="height:1px;background:${lvc.bg}22"></div>
-    <div class="ten-item">
-      <div class="ten-item-label" style="color:#6e6e73">📌 집중이 필요한 것</div>
-      <div class="ten-item-name">${topNextItem ? topNextItem.name : '-'}</div>
-      <div class="ten-item-count">${topNext ? topNext[1] + '회 언급' : ''}</div>
-    </div>
-  `;
-
-  // 카카오 전송 함수 세팅
-  const memberLink = makeLink(m);
-  document.getElementById('btnTenKakao').onclick = function() {
-    const reportDesc =
-      '레벨' + lv + ' · ' + lvc.name + '\n' +
-      '누적 ' + count + '회 수업 완료\n\n' +
-      '🏆 가장 잘한 것\n' + (topGoodItem ? topGoodItem.name : '-') + '\n\n' +
-      '📌 집중이 필요한 것\n' + (topNextItem ? topNextItem.name : '-');
-
-    const tenTitle = m.name + '님 ' + count + '회 수업 완료!';
-    const tenBody = '🎉 ' + tenTitle + '\n\n' + reportDesc + '\n\n👉 ' + memberLink;
-    shareMessage(tenTitle, tenBody, memberLink);
-    closeTenPopup();
-  };
-
-  document.getElementById('tenPopup').classList.add('open');
+  toast('✅ ' + currentMember.name + '님 피드백이 저장됐어요!');
+  setTimeout(() => goHome(), 1200);
 }
 
-function closeTenPopup() {
-  document.getElementById('tenPopup').classList.remove('open');
-  tenReportMember = null;
-}
-document.getElementById('tenPopup').addEventListener('click', e => {
-  if (e.target === document.getElementById('tenPopup')) closeTenPopup();
-});
-
-function copyFbLink() {
-  copyText(fbGenUrl);
-  toast(fbMember.name+'님의 피드백 링크가 복사되었습니다');
-  closeFb();
-}
-
-function closeFb() {
-  document.getElementById('fbSheet').classList.remove('open');
-  fbMember = null;
-}
-document.getElementById('fbSheet').addEventListener('click', e => {
-  if (e.target===document.getElementById('fbSheet')) closeFb();
-});
-
-// ── RENDER ──
-const lvName = ['','Awakening','Alignment','Connection','Flow'];
-const lvBadge = ['','b1','b2','b3','b4'];
-
-function render() {
-  const all = getAll();
-  document.getElementById('cnt').textContent = all.length;
-  const el = document.getElementById('mlist');
-  if (!all.length) {
-    el.innerHTML = '<div class="empty">아직 등록된 회원이 없어요.<br>위 양식에서 회원을 추가해주세요.</div>';
-    return;
+// ── 관리자 로그인 ──
+function checkAdminPw() {
+  const val = document.getElementById('adminPwInput').value;
+  if (val === getAdminPw()) {
+    showScreen('screenAdmin');
+    switchTab('members');
+  } else {
+    toast('비밀번호가 틀렸습니다');
   }
-  el.innerHTML = all.map(m => `
-    <div class="member-item">
-      <div class="avatar">${m.name.charAt(0)}</div>
-      <div class="minfo">
-        <div class="mname">${m.name}</div>
-        <div class="mphone">${maskPhone(m.phone)}</div>
-        <div class="mdate">${m.created} 등록</div>
+}
+
+// ── 관리자 탭 ──
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const names = ['members','instructors','records','monthly'];
+    t.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'members') renderAdminMembers();
+  if (name === 'instructors') renderAdminInstructors();
+  if (name === 'records') renderRecords();
+  if (name === 'monthly') renderMonthly();
+}
+
+// ── 레벨 선택 ──
+function setAddLevel(lv) {
+  addLevel = lv;
+  document.querySelectorAll('.lv-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.lv) === lv));
+}
+document.addEventListener('DOMContentLoaded', () => setAddLevel(1));
+
+// ── 회원 등록/관리 ──
+function addMember() {
+  const name = document.getElementById('inp-name').value.trim();
+  const raw = document.getElementById('inp-phone').value.replace(/\D/g,'');
+  if (!name) { toast('이름을 입력해주세요'); return; }
+  if (raw.length < 10) { toast('올바른 전화번호를 입력해주세요'); return; }
+  const members = getMembers();
+  if (members.find(m => m.phone.replace(/\D/g,'') === raw)) { toast('이미 등록된 전화번호입니다'); return; }
+  members.push({ id: uid(), name, phone: fmtPhone(raw), level: addLevel, created: new Date().toISOString().slice(0,10) });
+  setMembers(members);
+  document.getElementById('inp-name').value = '';
+  document.getElementById('inp-phone').value = '';
+  renderAdminMembers();
+  toast(name + '님이 등록됐습니다');
+}
+
+function renderAdminMembers() {
+  const list = getMembers();
+  document.getElementById('memberCount').textContent = list.length;
+  const el = document.getElementById('adminMemberList');
+  if (!list.length) { el.innerHTML = '<div class="empty">등록된 회원이 없습니다</div>'; return; }
+  el.innerHTML = list.map(m => `
+    <div class="row-item">
+      <div class="member-avatar" style="width:36px;height:36px;font-size:13px">${m.name.charAt(0)}</div>
+      <div class="row-info">
+        <div class="row-name">${m.name}</div>
+        <div class="row-sub">${m.phone} · <span class="lv-badge ${LV_COLOR[m.level]}">레벨${m.level} ${LV_NAME[m.level]}</span></div>
       </div>
-      <span class="lv-badge ${lvBadge[m.level]}">L${m.level} · ${lvName[m.level]}</span>
-      <div class="mactions">
-        <select class="lv-sel" onchange="setLevel('${m.id}',this.value)">
-          <option value="1" ${m.level===1?'selected':''}>L1</option>
-          <option value="2" ${m.level===2?'selected':''}>L2</option>
-          <option value="3" ${m.level===3?'selected':''}>L3</option>
-          <option value="4" ${m.level===4?'selected':''}>L4</option>
+      <div class="row-actions">
+        <select onchange="changeMemberLevel('${m.id}', this.value)" style="font-size:12px;padding:4px 6px;border:1px solid var(--border);border-radius:6px;background:white">
+          ${[1,2,3,4].map(l => `<option value="${l}" ${m.level===l?'selected':''}>${l}레벨</option>`).join('')}
         </select>
-        <button class="btn-sm btn-fb" onclick="openFb('${m.id}')">피드백 입력</button>
-        <button class="btn-sm" onclick="showLink('${m.id}')">링크 보기</button>
-        <button class="btn-sm btn-go" onclick="goMember('${m.id}')">바로 가기 ↗</button>
-        <button class="btn-sm btn-qr" onclick="showQR('${m.id}')">QR 보기</button>
-        <button class="btn-sm btn-del" onclick="delMember('${m.id}')">삭제</button>
+        <button class="btn-del" onclick="delMember('${m.id}')">삭제</button>
       </div>
     </div>
   `).join('');
 }
 
-function copyText(text) {
-  navigator.clipboard.writeText(text).catch(() => {
-    const el = document.createElement('textarea');
-    el.value = text; el.style.position='fixed'; el.style.opacity='0';
-    document.body.appendChild(el); el.select(); document.execCommand('copy');
-    document.body.removeChild(el);
+function changeMemberLevel(id, lv) {
+  const list = getMembers();
+  const m = list.find(x => x.id === id);
+  if (m) { m.level = parseInt(lv); setMembers(list); toast('레벨이 변경됐습니다'); }
+}
+
+function delMember(id) {
+  const list = getMembers();
+  const m = list.find(x => x.id === id);
+  if (!m || !confirm(m.name + '님을 삭제할까요?')) return;
+  setMembers(list.filter(x => x.id !== id));
+  renderAdminMembers();
+  toast('삭제됐습니다');
+}
+
+// ── 강사 등록/관리 ──
+function addInstructor() {
+  const name = document.getElementById('inp-instructor-name').value.trim();
+  if (!name) { toast('이름을 입력해주세요'); return; }
+  const list = getInstructors();
+  list.push({ id: uid(), name, created: new Date().toISOString().slice(0,10) });
+  setInstructors(list);
+  document.getElementById('inp-instructor-name').value = '';
+  renderAdminInstructors();
+  toast(name + ' 강사가 등록됐습니다');
+}
+
+function renderAdminInstructors() {
+  const list = getInstructors();
+  document.getElementById('instructorCount').textContent = list.length;
+  const el = document.getElementById('adminInstructorList');
+  if (!list.length) { el.innerHTML = '<div class="empty">등록된 강사가 없습니다</div>'; return; }
+  el.innerHTML = list.map(i => `
+    <div class="row-item">
+      <div class="instructor-card-avatar" style="width:36px;height:36px;font-size:14px;flex-shrink:0">${i.name.charAt(0)}</div>
+      <div class="row-info">
+        <div class="row-name">${i.name} 강사</div>
+        <div class="row-sub">등록일 ${i.created}</div>
+      </div>
+      <div class="row-actions">
+        <button class="btn-del" onclick="delInstructor('${i.id}')">삭제</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function delInstructor(id) {
+  const list = getInstructors();
+  const i = list.find(x => x.id === id);
+  if (!i || !confirm(i.name + ' 강사를 삭제할까요?')) return;
+  setInstructors(list.filter(x => x.id !== id));
+  renderAdminInstructors();
+  toast('삭제됐습니다');
+}
+
+// ── 피드백 기록 ──
+function renderRecords() {
+  const q = (document.getElementById('recordSearch').value || '').trim().toLowerCase();
+  let list = getFeedback();
+  if (q) list = list.filter(r =>
+    r.memberName.toLowerCase().includes(q) ||
+    r.instructorName.toLowerCase().includes(q)
+  );
+  document.getElementById('recordCount').textContent = list.length;
+  const el = document.getElementById('recordList');
+  if (!list.length) { el.innerHTML = '<div class="empty">기록이 없습니다</div>'; return; }
+  el.innerHTML = list.map(r => `
+    <div class="fb-record">
+      <div class="fb-record-top">
+        <span class="fb-record-name">${r.memberName}</span>
+        <span class="lv-badge ${LV_COLOR[r.level]}">레벨${r.level}</span>
+        <span class="fb-record-instructor">${r.instructorName} 강사</span>
+        <span class="fb-record-date">${r.date}</span>
+      </div>
+      <div class="fb-record-items">
+        <span class="fb-record-item" style="color:var(--good)">✅ ${r.goodName}</span>
+        <span class="fb-record-item" style="color:var(--next)">📌 ${r.nextName}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── 월간 리포트 ──
+function renderMonthly() {
+  const members = getMembers();
+  const el = document.getElementById('monthlyList');
+  if (!members.length) { el.innerHTML = '<div class="empty">회원이 없습니다</div>'; return; }
+
+  const allFb = getFeedback();
+  const now = new Date();
+  const cutoff = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0,10);
+
+  el.innerHTML = members.map(m => {
+    const mFb = allFb.filter(r => r.memberId === m.id && r.date >= cutoff);
+    return `
+      <div class="monthly-member-item">
+        <div class="member-avatar" style="width:38px;height:38px;font-size:14px">${m.name.charAt(0)}</div>
+        <div class="monthly-info">
+          <div class="monthly-name">${m.name}</div>
+          <div class="monthly-count">최근 30일 ${mFb.length}회 수업</div>
+        </div>
+        <button class="monthly-send-btn" onclick="sendMonthlyReport('${m.id}')">리포트 전송</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function sendMonthlyReport(memberId) {
+  const m = getMembers().find(x => x.id === memberId);
+  if (!m) return;
+
+  const allFb = getFeedback();
+  const now = new Date();
+  const cutoff = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0,10);
+  const mFb = allFb.filter(r => r.memberId === memberId && r.date >= cutoff);
+
+  if (!mFb.length) { toast('최근 30일 피드백 기록이 없습니다'); return; }
+
+  // 빈도 집계
+  const goodCount = {}, nextCount = {};
+  mFb.forEach(r => {
+    goodCount[r.goodName] = (goodCount[r.goodName] || 0) + 1;
+    nextCount[r.nextName] = (nextCount[r.nextName] || 0) + 1;
   });
-}
 
-let _tt;
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('show');
-  clearTimeout(_tt); _tt = setTimeout(()=>el.classList.remove('show'), 2500);
-}
+  const topGood = Object.entries(goodCount).sort((a,b) => b[1]-a[1]).slice(0,3);
+  const topNext = Object.entries(nextCount).sort((a,b) => b[1]-a[1]).slice(0,3);
 
-render();
+  const startDate = mFb.map(r=>r.date).sort()[0];
+  const endDate = mFb.map(r=>r.date).sort().reverse()[0];
+
+  const msg =
+    '📊 ' + m.name + '님 월간 리포트\n' +
+    startDate + ' ~ ' + endDate + ' (' + mFb.length + '회 수업)\n\n' +
+    '🏆 잘한 항목 TOP\n' + topGood.map((g,i) => (i+1)+'. '+g[0]+' ('+g[1]+'회)').join('\n') + '\n\n' +
+    '📌 더 신경써야 할 항목\n' + topNext.map((n,i) => (i+1)+'. '+n[0]+' ('+n[1]+'회)').join('\n') + '\n\n' +
+    '꾸준히 함께해 주셔서 감사합니다! 💪';
+
+  const phone = m.phone.replace(/\D/g, '');
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const sep = isIOS ? '&' : '?';
+  window.location.href = 'sms:' + phone + sep + 'body=' + encodeURIComponent(msg);
+}
 </script>
 </body>
 </html>
