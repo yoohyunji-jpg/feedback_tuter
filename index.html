@@ -690,12 +690,44 @@ const INSTRS_KEY   = 'hb_instructors';
 const FB_KEY       = 'hb_feedback';
 
 function getMembers()     { return JSON.parse(localStorage.getItem(MEMBERS_KEY)  || '[]'); }
-function setMembers(d)    { localStorage.setItem(MEMBERS_KEY, JSON.stringify(d)); }
+function setMembers(d)    { localStorage.setItem(MEMBERS_KEY, JSON.stringify(d)); syncUp('members', d); }
 function getInstructors() { return JSON.parse(localStorage.getItem(INSTRS_KEY)   || '[]'); }
-function setInstructors(d){ localStorage.setItem(INSTRS_KEY, JSON.stringify(d)); }
+function setInstructors(d){ localStorage.setItem(INSTRS_KEY, JSON.stringify(d)); syncUp('instructors', d); }
 function getFeedback()    { return JSON.parse(localStorage.getItem(FB_KEY)       || '[]'); }
-function setFeedback(d)   { localStorage.setItem(FB_KEY, JSON.stringify(d)); }
+function setFeedback(d)   { localStorage.setItem(FB_KEY, JSON.stringify(d)); syncUp('feedback', d); }
 function getAdminPw()     { return localStorage.getItem(ADMIN_PW_KEY) || '1234'; }
+
+// ── 서버 동기화 (아이패드↔아이폰 공유) ──
+let _syncing = false;
+async function syncUp(col, data) {
+  try {
+    await fetch('/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ col, data }),
+    });
+  } catch(e) { /* 오프라인 — localStorage만 저장됨 */ }
+}
+
+async function syncDown() {
+  if (_syncing) return false;
+  _syncing = true;
+  try {
+    const [members, instructors, feedback] = await Promise.all([
+      fetch('/api/data?col=members').then(r => r.json()).catch(() => null),
+      fetch('/api/data?col=instructors').then(r => r.json()).catch(() => null),
+      fetch('/api/data?col=feedback').then(r => r.json()).catch(() => null),
+    ]);
+    if (Array.isArray(members))     localStorage.setItem(MEMBERS_KEY, JSON.stringify(members));
+    if (Array.isArray(instructors)) localStorage.setItem(INSTRS_KEY, JSON.stringify(instructors));
+    if (Array.isArray(feedback))    localStorage.setItem(FB_KEY, JSON.stringify(feedback));
+    return true;
+  } catch(e) {
+    return false; // 오프라인 모드
+  } finally {
+    _syncing = false;
+  }
+}
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 function fmtPhone(s) {
@@ -749,9 +781,11 @@ function showScreen(id) {
 
 function goHome() { showScreen('screenHome'); }
 
-function goTutor() {
-  renderInstructors();
+async function goTutor() {
   showScreen('screenTutor');
+  renderInstructors(); // 캐시 먼저 표시
+  const synced = await syncDown(); // 서버에서 최신 데이터 받기
+  if (synced) renderInstructors(); // 최신 데이터로 재렌더
 }
 
 function goMemberSelect() {
@@ -1069,10 +1103,11 @@ async function shareCardImage(el, filename) {
 }
 
 // ── 관리자 로그인 ──
-function checkAdminPw() {
+async function checkAdminPw() {
   const val = document.getElementById('adminPwInput').value;
   if (val === getAdminPw()) {
     showScreen('screenAdmin');
+    await syncDown(); // 관리자 진입 시 최신 데이터 동기화
     switchTab('members');
   } else {
     toast('비밀번호가 틀렸습니다');
@@ -1098,7 +1133,10 @@ function setAddLevel(lv) {
   addLevel = lv;
   document.querySelectorAll('.lv-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.lv) === lv));
 }
-document.addEventListener('DOMContentLoaded', () => setAddLevel(1));
+document.addEventListener('DOMContentLoaded', () => {
+  setAddLevel(1);
+  syncDown(); // 앱 시작 시 서버에서 최신 데이터 동기화
+});
 
 // ── 회원 등록/관리 ──
 function addMember() {
