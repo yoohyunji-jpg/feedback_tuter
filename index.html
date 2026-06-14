@@ -507,7 +507,10 @@
 <div id="screenAdmin" class="screen">
   <div class="topbar">
     <span class="topbar-title">관리자</span>
-    <button class="btn btn-sm btn-outline" style="width:auto; font-size:13px" onclick="goHome()">나가기</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-sm" style="width:auto;font-size:13px;background:var(--blue);color:white" onclick="uploadToServer()">☁️ 서버 업로드</button>
+      <button class="btn btn-sm btn-outline" style="width:auto;font-size:13px" onclick="goHome()">나가기</button>
+    </div>
   </div>
   <div class="tabs">
     <div class="tab active" onclick="switchTab('members')">회원</div>
@@ -718,9 +721,10 @@ async function syncDown() {
       fetch('/api/data?col=instructors').then(r => r.json()).catch(() => null),
       fetch('/api/data?col=feedback').then(r => r.json()).catch(() => null),
     ]);
-    if (Array.isArray(members))     localStorage.setItem(MEMBERS_KEY, JSON.stringify(members));
-    if (Array.isArray(instructors)) localStorage.setItem(INSTRS_KEY, JSON.stringify(instructors));
-    if (Array.isArray(feedback))    localStorage.setItem(FB_KEY, JSON.stringify(feedback));
+    // 서버에 데이터가 있을 때만 덮어씀 (빈 배열로 기존 데이터 지우지 않음)
+    if (Array.isArray(members)     && members.length > 0)     localStorage.setItem(MEMBERS_KEY, JSON.stringify(members));
+    if (Array.isArray(instructors) && instructors.length > 0) localStorage.setItem(INSTRS_KEY, JSON.stringify(instructors));
+    if (Array.isArray(feedback)    && feedback.length > 0)    localStorage.setItem(FB_KEY, JSON.stringify(feedback));
     return true;
   } catch(e) {
     return false; // 오프라인 모드
@@ -1099,6 +1103,26 @@ async function shareCardImage(el, filename) {
   } catch(e) {
     console.error(e);
     toast('이미지 생성에 실패했어요. 다시 시도해주세요.');
+  }
+}
+
+// ── 기존 데이터 서버에 업로드 (최초 1회) ──
+async function uploadToServer() {
+  const instructors = getInstructors();
+  const members     = getMembers();
+  const feedback    = getFeedback();
+  if (!instructors.length && !members.length && !feedback.length) {
+    toast('업로드할 데이터가 없습니다'); return;
+  }
+  try {
+    await Promise.all([
+      instructors.length && syncUp('instructors', instructors),
+      members.length     && syncUp('members', members),
+      feedback.length    && syncUp('feedback', feedback),
+    ]);
+    toast('✅ 서버 업로드 완료! 다른 기기에서도 보여요');
+  } catch(e) {
+    toast('업로드 실패. 인터넷 연결을 확인해주세요');
   }
 }
 
