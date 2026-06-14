@@ -32,8 +32,22 @@
     }
 
     /* ── 공통 ── */
-    .screen { display: none; min-height: 100vh; }
+    .screen {
+      display: none; min-height: 100vh;
+      animation: slideIn 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+    }
     .screen.active { display: block; }
+    .screen.slide-back {
+      animation: slideBack 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0.6; }
+      to   { transform: translateX(0);    opacity: 1; }
+    }
+    @keyframes slideBack {
+      from { transform: translateX(-30%); opacity: 0.6; }
+      to   { transform: translateX(0);    opacity: 1; }
+    }
 
     .topbar {
       position: sticky; top: 0; z-index: 100;
@@ -777,13 +791,17 @@ function toast(msg) {
 }
 
 // ── 화면 전환 ──
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+function showScreen(id, goingBack = false) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active', 'slide-back');
+  });
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  if (goingBack) el.classList.add('slide-back');
   window.scrollTo(0, 0);
 }
 
-function goHome() { showScreen('screenHome'); }
+function goHome() { showScreen('screenHome', true); }
 
 async function goTutor() {
   showScreen('screenTutor');
