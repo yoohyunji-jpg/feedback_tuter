@@ -851,6 +851,23 @@ const LV_GRAD = {
   4: 'linear-gradient(135deg, #ef4444 0%, #a32d2d 100%)',
 };
 
+// ── 카카오 알림톡 발송 API 호출 ──
+async function sendAlimtalk(type, phone, params) {
+  try {
+    const res = await fetch('/api/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, phone, params }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || '발송 실패');
+    return true;
+  } catch (e) {
+    console.error('알림톡 오류:', e);
+    return false;
+  }
+}
+
 // ── 피드백 저장 (공통) ──
 function saveFeedback(lv, date, goodItem, nextItem) {
   const fb = getFeedback();
@@ -898,13 +915,30 @@ function closeFbCardPopup(e) {
   }
 }
 
-// ── 피드백 카드 이미지 공유 ──
+// ── 피드백 카드 이미지 공유 + 알림톡 발송 ──
 async function shareFbCard() {
+  const lv = currentMember.level;
+  const date = document.getElementById('fbDate').value;
+  const goodItem = ITEMS[lv].find(i => i.n === fbGoodSel);
+  const nextItem = ITEMS[lv].find(i => i.n === fbNextSel);
+
+  // 이미지 공유
   const el = document.getElementById('fbCardEl');
   await shareCardImage(el, currentMember.name + '님_오늘의피드백.png');
+
+  // 카카오 알림톡 발송
+  toast('카카오톡 전송 중...');
+  const ok = await sendAlimtalk('feedback', currentMember.phone, {
+    name:     currentMember.name,
+    level:    lv,
+    date:     date,
+    goodName: goodItem ? goodItem.name : '',
+    nextName: nextItem ? nextItem.name : '',
+  });
+
   document.getElementById('fbCardPopup').classList.remove('open');
-  toast('✅ 피드백이 저장됐어요!');
-  setTimeout(() => goHome(), 800);
+  toast(ok ? '✅ 카카오톡 전송 완료!' : '✅ 저장됐어요! (카카오톡 심사 대기중)');
+  setTimeout(() => goHome(), 1200);
 }
 
 // ── 월간 카드 보기 ──
@@ -962,9 +996,36 @@ function closeMonthlyCardPopup(e) {
 }
 
 async function shareMonthlyCard() {
-  const m = getMembers().find(x => document.getElementById('mcMember').textContent.startsWith(x.name));
+  const memberName = document.getElementById('mcMember').textContent.replace('님', '');
+  const m = getMembers().find(x => x.name === memberName);
+
+  // 이미지 공유
   const el = document.getElementById('monthlyCardEl');
-  await shareCardImage(el, '월간리포트.png');
+  await shareCardImage(el, memberName + '님_월간리포트.png');
+
+  // 알림톡 발송
+  if (m) {
+    const allFb = getFeedback();
+    const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0,10);
+    const mFb = allFb.filter(r => r.memberId === m.id && r.date >= cutoff);
+    const goodCount = {}, nextCount = {};
+    mFb.forEach(r => {
+      goodCount[r.goodName] = (goodCount[r.goodName] || 0) + 1;
+      nextCount[r.nextName] = (nextCount[r.nextName] || 0) + 1;
+    });
+    const topGood = Object.entries(goodCount).sort((a,b) => b[1]-a[1]).slice(0,3).map(x => x[0]);
+    const topNext = Object.entries(nextCount).sort((a,b) => b[1]-a[1]).slice(0,3).map(x => x[0]);
+
+    toast('카카오톡 전송 중...');
+    const ok = await sendAlimtalk('monthly', m.phone, {
+      name:  m.name,
+      count: mFb.length,
+      good:  topGood,
+      next:  topNext,
+    });
+    toast(ok ? '✅ 카카오톡 전송 완료!' : '✅ 저장됐어요! (카카오톡 심사 대기중)');
+  }
+
   document.getElementById('monthlyCardPopup').classList.remove('open');
 }
 
