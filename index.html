@@ -315,6 +315,97 @@
       .instructor-grid { grid-template-columns: 1fr 1fr; }
       .wrap { padding: 20px 16px 100px; }
     }
+
+    /* ── 카드 팝업 ── */
+    .card-popup-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.6);
+      display: flex; align-items: flex-end; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.25s;
+    }
+    .card-popup-overlay.open { opacity: 1; pointer-events: all; }
+    .card-popup-sheet {
+      width: 100%; max-width: 640px; background: white;
+      border-radius: 24px 24px 0 0; padding: 24px 20px 40px;
+      transform: translateY(100%); transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+      max-height: 92vh; overflow-y: auto;
+    }
+    .card-popup-overlay.open .card-popup-sheet { transform: translateY(0); }
+    .card-popup-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px; }
+    .card-popup-title { font-size: 17px; font-weight: 700; margin-bottom: 16px; text-align: center; }
+
+    .card-share-btns { display: flex; gap: 10px; margin-top: 16px; }
+    .btn-share-main {
+      flex: 1; padding: 15px; background: var(--blue); color: white;
+      border: none; border-radius: 12px; font-size: 15px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+    }
+    .btn-share-secondary {
+      padding: 15px 18px; background: var(--bg); color: var(--text);
+      border: 1.5px solid var(--border); border-radius: 12px; font-size: 14px; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+    }
+
+    /* ── 피드백 카드 디자인 ── */
+    .fb-card {
+      width: 100%; border-radius: 20px; overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    }
+    .fb-card-header {
+      padding: 28px 24px 24px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .fb-card-brand { font-size: 12px; font-weight: 800; letter-spacing: 0.12em; opacity: 0.72; color: white; }
+    .fb-card-member { font-size: 26px; font-weight: 800; color: white; letter-spacing: -0.5px; }
+    .fb-card-sub { font-size: 13px; color: white; opacity: 0.85; }
+    .fb-card-meta {
+      display: flex; align-items: center; gap: 8px; margin-top: 6px;
+    }
+    .fb-card-lv {
+      font-size: 11px; font-weight: 700; padding: 3px 10px;
+      border-radius: 20px; background: rgba(255,255,255,0.22); color: white;
+    }
+    .fb-card-date { font-size: 12px; color: rgba(255,255,255,0.75); }
+
+    .fb-card-body { background: white; padding: 20px 22px 22px; }
+    .fb-card-section { margin-bottom: 14px; }
+    .fb-card-section:last-child { margin-bottom: 0; }
+    .fb-card-section-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; margin-bottom: 8px;
+    }
+    .fb-card-item {
+      padding: 13px 16px; border-radius: 12px;
+      font-size: 15px; font-weight: 600; line-height: 1.4;
+    }
+    .fb-card-good-label { color: var(--good); }
+    .fb-card-good-item { background: var(--good-bg); color: var(--good); }
+    .fb-card-next-label { color: var(--next); }
+    .fb-card-next-item { background: var(--next-bg); color: var(--next); }
+
+    .fb-card-footer {
+      background: white; border-top: 1px solid var(--border-s);
+      padding: 12px 22px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .fb-card-instructor { font-size: 12px; color: var(--text-2); }
+    .fb-card-logo { font-size: 12px; font-weight: 800; color: var(--text-3); letter-spacing: -0.3px; }
+
+    /* ── 월간 카드 ── */
+    .monthly-card-body { background: white; padding: 20px 22px 22px; }
+    .monthly-stat-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px; background: var(--bg);
+      border-radius: 10px; margin-bottom: 6px;
+    }
+    .monthly-stat-rank { font-size: 13px; font-weight: 800; color: var(--text-3); width: 18px; }
+    .monthly-stat-name { font-size: 14px; font-weight: 600; flex: 1; }
+    .monthly-stat-count { font-size: 12px; color: var(--text-2); }
+    .monthly-sessions-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--blue-bg); color: var(--blue);
+      padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700;
+      margin-bottom: 16px;
+    }
   </style>
 </head>
 <body>
@@ -395,7 +486,7 @@
     </div>
     <div style="height: 80px"></div>
   </div>
-  <button class="btn-sms" id="btnSms" onclick="sendSms()">📱 문자 전송</button>
+  <button class="btn-sms" id="btnSms" onclick="showFbCard()">🖼️ 카드 보기 &amp; 전송</button>
 </div>
 
 <!-- ── 관리자 로그인 ── -->
@@ -503,8 +594,93 @@
   </div>
 </div>
 
+<!-- ── 피드백 카드 팝업 ── -->
+<div class="card-popup-overlay" id="fbCardPopup" onclick="closeFbCardPopup(event)">
+  <div class="card-popup-sheet">
+    <div class="card-popup-handle"></div>
+    <div class="card-popup-title">오늘의 피드백 카드</div>
+
+    <!-- 카드 렌더링 영역 -->
+    <div id="fbCardRender">
+      <div class="fb-card" id="fbCardEl">
+        <div class="fb-card-header" id="fbCardHeader">
+          <div class="fb-card-brand">HELLO BODY</div>
+          <div class="fb-card-member" id="fcMember"></div>
+          <div class="fb-card-sub">오늘의 수업 피드백</div>
+          <div class="fb-card-meta">
+            <div class="fb-card-lv" id="fcLv"></div>
+            <div class="fb-card-date" id="fcDate"></div>
+          </div>
+        </div>
+        <div class="fb-card-body">
+          <div class="fb-card-section">
+            <div class="fb-card-section-label fb-card-good-label">✅ 오늘 잘했어요</div>
+            <div class="fb-card-item fb-card-good-item" id="fcGood"></div>
+          </div>
+          <div class="fb-card-section">
+            <div class="fb-card-section-label fb-card-next-label">📌 다음에 더 신경써봐요</div>
+            <div class="fb-card-item fb-card-next-item" id="fcNext"></div>
+          </div>
+        </div>
+        <div class="fb-card-footer">
+          <div class="fb-card-instructor" id="fcInstructor"></div>
+          <div class="fb-card-logo">Hello Body</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-share-btns">
+      <button class="btn-share-main" onclick="shareFbCard()">🖼️ 이미지로 전송</button>
+      <button class="btn-share-secondary" onclick="closeFbCardPopup()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 월간 카드 팝업 ── -->
+<div class="card-popup-overlay" id="monthlyCardPopup" onclick="closeMonthlyCardPopup(event)">
+  <div class="card-popup-sheet">
+    <div class="card-popup-handle"></div>
+    <div class="card-popup-title">월간 리포트 카드</div>
+
+    <div id="monthlyCardRender">
+      <div class="fb-card" id="monthlyCardEl">
+        <div class="fb-card-header" id="monthlyCardHeader">
+          <div class="fb-card-brand">HELLO BODY</div>
+          <div class="fb-card-member" id="mcMember"></div>
+          <div class="fb-card-sub" id="mcPeriod"></div>
+          <div class="fb-card-meta">
+            <div class="fb-card-lv" id="mcLv"></div>
+          </div>
+        </div>
+        <div class="monthly-card-body">
+          <div class="monthly-sessions-badge">🏃 <span id="mcCount"></span>회 수업 완료</div>
+          <div class="fb-card-section">
+            <div class="fb-card-section-label fb-card-good-label">✅ 잘한 항목 TOP 3</div>
+            <div id="mcGoodList"></div>
+          </div>
+          <div class="fb-card-section" style="margin-top:12px">
+            <div class="fb-card-section-label fb-card-next-label">📌 집중이 필요한 항목 TOP 3</div>
+            <div id="mcNextList"></div>
+          </div>
+        </div>
+        <div class="fb-card-footer">
+          <div class="fb-card-instructor" id="mcPeriodFooter"></div>
+          <div class="fb-card-logo">Hello Body</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-share-btns">
+      <button class="btn-share-main" onclick="shareMonthlyCard()">🖼️ 이미지로 전송</button>
+      <button class="btn-share-secondary" onclick="closeMonthlyCardPopup()">닫기</button>
+    </div>
+  </div>
+</div>
+
 <!-- 토스트 -->
 <div id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
 // ── 데이터 ──
@@ -667,7 +843,32 @@ function pickItem(group, val, el, cls) {
   else fbNextSel = val;
 }
 
-function sendSms() {
+// ── 레벨별 헤더 컬러 ──
+const LV_GRAD = {
+  1: 'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)',
+  2: 'linear-gradient(135deg, #10b981 0%, #1d7a45 100%)',
+  3: 'linear-gradient(135deg, #3b82f6 0%, #185fa5 100%)',
+  4: 'linear-gradient(135deg, #ef4444 0%, #a32d2d 100%)',
+};
+
+// ── 피드백 저장 (공통) ──
+function saveFeedback(lv, date, goodItem, nextItem) {
+  const fb = getFeedback();
+  fb.unshift({
+    id: uid(),
+    memberId: currentMember.id,
+    memberName: currentMember.name,
+    instructorId: currentInstructor.id,
+    instructorName: currentInstructor.name,
+    date, level: lv,
+    good: fbGoodSel, goodName: goodItem ? goodItem.name : '',
+    next: fbNextSel, nextName: nextItem ? nextItem.name : '',
+  });
+  setFeedback(fb);
+}
+
+// ── 오늘의 피드백 카드 보기 ──
+function showFbCard() {
   if (!fbGoodSel) { toast('✅ 잘한 항목을 선택해주세요'); return; }
   if (!fbNextSel) { toast('📌 다음 신경쓸 항목을 선택해주세요'); return; }
 
@@ -677,36 +878,133 @@ function sendSms() {
   const nextItem = ITEMS[lv].find(i => i.n === fbNextSel);
 
   // 피드백 저장
-  const fb = getFeedback();
-  fb.unshift({
-    id: uid(),
-    memberId: currentMember.id,
-    memberName: currentMember.name,
-    instructorId: currentInstructor.id,
-    instructorName: currentInstructor.name,
-    date,
-    level: lv,
-    good: fbGoodSel,
-    goodName: goodItem ? goodItem.name : '',
-    next: fbNextSel,
-    nextName: nextItem ? nextItem.name : '',
+  saveFeedback(lv, date, goodItem, nextItem);
+
+  // 카드 채우기
+  document.getElementById('fbCardHeader').style.background = LV_GRAD[lv];
+  document.getElementById('fcMember').textContent = currentMember.name + '님';
+  document.getElementById('fcLv').textContent = '레벨' + lv + ' · ' + LV_NAME[lv];
+  document.getElementById('fcDate').textContent = date.replace(/-/g, '. ');
+  document.getElementById('fcGood').textContent = goodItem ? goodItem.name : '';
+  document.getElementById('fcNext').textContent = nextItem ? nextItem.name : '';
+  document.getElementById('fcInstructor').textContent = currentInstructor.name + ' 강사';
+
+  document.getElementById('fbCardPopup').classList.add('open');
+}
+
+function closeFbCardPopup(e) {
+  if (!e || e.target === document.getElementById('fbCardPopup')) {
+    document.getElementById('fbCardPopup').classList.remove('open');
+  }
+}
+
+// ── 피드백 카드 이미지 공유 ──
+async function shareFbCard() {
+  const el = document.getElementById('fbCardEl');
+  await shareCardImage(el, currentMember.name + '님_오늘의피드백.png');
+  document.getElementById('fbCardPopup').classList.remove('open');
+  toast('✅ 피드백이 저장됐어요!');
+  setTimeout(() => goHome(), 800);
+}
+
+// ── 월간 카드 보기 ──
+function showMonthlyCard(memberId) {
+  const m = getMembers().find(x => x.id === memberId);
+  if (!m) return;
+
+  const allFb = getFeedback();
+  const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0,10);
+  const mFb = allFb.filter(r => r.memberId === memberId && r.date >= cutoff);
+
+  if (!mFb.length) { toast('최근 30일 피드백 기록이 없습니다'); return; }
+
+  const goodCount = {}, nextCount = {};
+  mFb.forEach(r => {
+    goodCount[r.goodName] = (goodCount[r.goodName] || 0) + 1;
+    nextCount[r.nextName] = (nextCount[r.nextName] || 0) + 1;
   });
-  setFeedback(fb);
+  const topGood = Object.entries(goodCount).sort((a,b) => b[1]-a[1]).slice(0,3);
+  const topNext = Object.entries(nextCount).sort((a,b) => b[1]-a[1]).slice(0,3);
+  const startDate = [...mFb].map(r=>r.date).sort()[0];
+  const endDate   = [...mFb].map(r=>r.date).sort().reverse()[0];
 
-  // SMS 전송
-  const phone = currentMember.phone.replace(/\D/g, '');
-  const msg =
-    '📋 ' + currentMember.name + '님 오늘 수업 피드백\n' +
-    '레벨' + lv + ' · ' + LV_NAME[lv] + '  |  ' + date + '\n\n' +
-    '✅ 잘했어요\n' + (goodItem ? goodItem.name : '') + '\n\n' +
-    '📌 다음에 더 신경써봐요\n' + (nextItem ? nextItem.name : '');
+  const lv = m.level;
+  document.getElementById('monthlyCardHeader').style.background = LV_GRAD[lv];
+  document.getElementById('mcMember').textContent = m.name + '님';
+  document.getElementById('mcPeriod').textContent = '이번 달 수업 리포트';
+  document.getElementById('mcLv').textContent = '레벨' + lv + ' · ' + LV_NAME[lv];
+  document.getElementById('mcCount').textContent = mFb.length;
+  document.getElementById('mcPeriodFooter').textContent = startDate.replace(/-/g,'. ') + ' ~ ' + endDate.replace(/-/g,'. ');
 
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-  const sep = isIOS ? '&' : '?';
-  window.location.href = 'sms:' + phone + sep + 'body=' + encodeURIComponent(msg);
+  const ranks = ['🥇','🥈','🥉'];
+  document.getElementById('mcGoodList').innerHTML = topGood.map((g,i) => `
+    <div class="monthly-stat-row">
+      <div class="monthly-stat-rank">${ranks[i]||i+1}</div>
+      <div class="monthly-stat-name">${g[0]}</div>
+      <div class="monthly-stat-count">${g[1]}회</div>
+    </div>
+  `).join('');
+  document.getElementById('mcNextList').innerHTML = topNext.map((n,i) => `
+    <div class="monthly-stat-row">
+      <div class="monthly-stat-rank" style="color:var(--next)">${i+1}</div>
+      <div class="monthly-stat-name">${n[0]}</div>
+      <div class="monthly-stat-count">${n[1]}회</div>
+    </div>
+  `).join('');
 
-  toast('✅ ' + currentMember.name + '님 피드백이 저장됐어요!');
-  setTimeout(() => goHome(), 1200);
+  document.getElementById('monthlyCardPopup').classList.add('open');
+}
+
+function closeMonthlyCardPopup(e) {
+  if (!e || e.target === document.getElementById('monthlyCardPopup')) {
+    document.getElementById('monthlyCardPopup').classList.remove('open');
+  }
+}
+
+async function shareMonthlyCard() {
+  const m = getMembers().find(x => document.getElementById('mcMember').textContent.startsWith(x.name));
+  const el = document.getElementById('monthlyCardEl');
+  await shareCardImage(el, '월간리포트.png');
+  document.getElementById('monthlyCardPopup').classList.remove('open');
+}
+
+// ── 이미지 생성 및 공유 (공통) ──
+async function shareCardImage(el, filename) {
+  toast('이미지 생성 중...');
+  try {
+    const canvas = await html2canvas(el, {
+      scale: 2.5,
+      useCORS: true,
+      backgroundColor: null,
+      logging: false,
+    });
+
+    canvas.toBlob(async (blob) => {
+      const file = new File([blob], filename, { type: 'image/png' });
+
+      // Web Share API (iOS 15+)
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: 'Hello Body 피드백' });
+          return;
+        } catch(e) {
+          if (e.name === 'AbortError') return; // 사용자가 취소
+        }
+      }
+
+      // Fallback: 다운로드
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast('📥 이미지가 저장됐어요!');
+    }, 'image/png');
+
+  } catch(e) {
+    console.error(e);
+    toast('이미지 생성에 실패했어요. 다시 시도해주세요.');
+  }
 }
 
 // ── 관리자 로그인 ──
@@ -880,7 +1178,7 @@ function renderMonthly() {
           <div class="monthly-name">${m.name}</div>
           <div class="monthly-count">최근 30일 ${mFb.length}회 수업</div>
         </div>
-        <button class="monthly-send-btn" onclick="sendMonthlyReport('${m.id}')">리포트 전송</button>
+        <button class="monthly-send-btn" onclick="showMonthlyCard('${m.id}')">카드 전송</button>
       </div>
     `;
   }).join('');
