@@ -68,7 +68,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         message: {
           to: phone.replace(/\D/g, ''),
-          from: '15880000', // ← 발신번호 (Solapi에 등록된 번호로 변경 필요)
+          from: process.env.SENDER_PHONE, // Solapi에 등록된 발신번호
           kakaoOptions: {
             pfId: KAKAO_CHANNEL,
             templateId: templateId,
