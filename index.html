@@ -129,7 +129,8 @@
     .lv4 { background: var(--lv4-bg); color: var(--lv4); }
 
     /* ── 홈 화면 ── */
-    #screenHome { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 40px 24px; }
+    #screenHome { flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 40px 24px; }
+    #screenHome.active { display: flex; }
     .home-logo { font-size: 28px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
     .home-sub { font-size: 14px; color: var(--text-2); margin-bottom: 48px; }
     .home-btns { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 14px; }
@@ -239,7 +240,8 @@
     .btn-sms:disabled { background: var(--border); color: var(--text-3); box-shadow: none; }
 
     /* ── 관리자 로그인 ── */
-    #screenAdminLogin { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 40px 24px; }
+    #screenAdminLogin { flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 40px 24px; }
+    #screenAdminLogin.active { display: flex; }
     .admin-login-card { width: 100%; max-width: 360px; background: white; border-radius: 20px; padding: 32px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
     .admin-login-icon { font-size: 40px; text-align: center; margin-bottom: 16px; }
     .admin-login-title { font-size: 21px; font-weight: 700; text-align: center; margin-bottom: 6px; }
