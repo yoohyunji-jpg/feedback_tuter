@@ -916,11 +916,15 @@ async function sendAlimtalk(type, phone, params) {
       body: JSON.stringify({ type, phone, params }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || '발송 실패');
-    return true;
+    if (!res.ok) {
+      const msg = data.error || data.code || '발송 실패';
+      console.error('알림톡 오류:', data);
+      return { ok: false, error: msg };
+    }
+    return { ok: true };
   } catch (e) {
     console.error('알림톡 오류:', e);
-    return false;
+    return { ok: false, error: e.message };
   }
 }
 
@@ -971,20 +975,16 @@ function closeFbCardPopup(e) {
   }
 }
 
-// ── 피드백 카드 이미지 공유 + 알림톡 발송 ──
+// ── 피드백 카드 알림톡 발송 ──
 async function shareFbCard() {
   const lv = currentMember.level;
   const date = document.getElementById('fbDate').value;
   const goodItem = ITEMS[lv].find(i => i.n === fbGoodSel);
   const nextItem = ITEMS[lv].find(i => i.n === fbNextSel);
 
-  // 이미지 공유
-  const el = document.getElementById('fbCardEl');
-  await shareCardImage(el, currentMember.name + '님_오늘의피드백.png');
-
   // 카카오 알림톡 발송
   toast('카카오톡 전송 중...');
-  const ok = await sendAlimtalk('feedback', currentMember.phone, {
+  const result = await sendAlimtalk('feedback', currentMember.phone, {
     name:     currentMember.name,
     level:    lv,
     date:     date,
@@ -993,8 +993,12 @@ async function shareFbCard() {
   });
 
   document.getElementById('fbCardPopup').classList.remove('open');
-  toast(ok ? '✅ 카카오톡 전송 완료!' : '✅ 저장됐어요! (카카오톡 심사 대기중)');
-  setTimeout(() => goHome(), 1200);
+  if (result.ok) {
+    toast('✅ 카카오톡 전송 완료!');
+  } else {
+    toast('⚠️ 알림톡 오류: ' + result.error);
+  }
+  setTimeout(() => goHome(), 2000);
 }
 
 // ── 월간 카드 보기 ──
@@ -1055,10 +1059,6 @@ async function shareMonthlyCard() {
   const memberName = document.getElementById('mcMember').textContent.replace('님', '');
   const m = getMembers().find(x => x.name === memberName);
 
-  // 이미지 공유
-  const el = document.getElementById('monthlyCardEl');
-  await shareCardImage(el, memberName + '님_월간리포트.png');
-
   // 알림톡 발송
   if (m) {
     const allFb = getFeedback();
@@ -1073,13 +1073,17 @@ async function shareMonthlyCard() {
     const topNext = Object.entries(nextCount).sort((a,b) => b[1]-a[1]).slice(0,3).map(x => x[0]);
 
     toast('카카오톡 전송 중...');
-    const ok = await sendAlimtalk('monthly', m.phone, {
+    const result = await sendAlimtalk('monthly', m.phone, {
       name:  m.name,
       count: mFb.length,
       good:  topGood,
       next:  topNext,
     });
-    toast(ok ? '✅ 카카오톡 전송 완료!' : '✅ 저장됐어요! (카카오톡 심사 대기중)');
+    if (result.ok) {
+      toast('✅ 카카오톡 전송 완료!');
+    } else {
+      toast('⚠️ 알림톡 오류: ' + result.error);
+    }
   }
 
   document.getElementById('monthlyCardPopup').classList.remove('open');
