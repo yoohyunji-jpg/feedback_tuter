@@ -38,6 +38,7 @@ export default async function handler(req, res) {
   const TEMPLATE_IDS = {
     feedback: process.env.TEMPLATE_ID_FEEDBACK,
     monthly:  process.env.TEMPLATE_ID_MONTHLY,
+    levelup:  process.env.TEMPLATE_ID_LEVELUP,
   };
 
   const templateId = TEMPLATE_IDS[type];
@@ -65,6 +66,13 @@ export default async function handler(req, res) {
       '#{다음항목1}': params.next?.[0]  || '-',
       '#{다음항목2}': params.next?.[1]  || '-',
       '#{다음항목3}': params.next?.[2]  || '-',
+    };
+  } else if (type === 'levelup') {
+    variables = {
+      '#{이름}':   params.name           || '',
+      '#{레벨}':   String(params.level   || ''),
+      '#{단계}':   String(params.stage   || ''),
+      '#{강사명}': params.instructorName || '',
     };
   }
 
