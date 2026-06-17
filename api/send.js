@@ -69,10 +69,11 @@ export default async function handler(req, res) {
     };
   } else if (type === 'levelup') {
     variables = {
-      '#{이름}':   params.name           || '',
-      '#{레벨}':   String(params.level   || ''),
-      '#{단계}':   String(params.stage   || ''),
-      '#{강사명}': params.instructorName || '',
+      '#{이름}':     params.name           || '',
+      '#{레벨}':     String(params.level   || ''),
+      '#{단계}':     String(params.stage   || ''),
+      '#{완료횟수}': String(params.done    || ''),
+      '#{강사명}':   params.instructorName || '',
     };
   }
 
