@@ -328,6 +328,19 @@
     .fb-record-items { display: flex; flex-direction: column; gap: 3px; }
     .fb-record-item { font-size: 13px; color: var(--text-2); }
 
+    /* ── 회원별 피드백 그룹 ── */
+    .member-record-group {
+      border-bottom: 1px solid var(--border-s);
+    }
+    .member-record-group:last-child { border-bottom: none; }
+    .member-record-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 13px 4px; cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .member-record-header:active { opacity: 0.6; }
+    .member-record-body .fb-record:last-child { border-bottom: none; }
+
     /* 월간 리포트 */
     .monthly-member-item {
       display: flex; align-items: center; gap: 12px;
@@ -1614,31 +1627,82 @@ function delInstructor(id) {
   toast('삭제됐습니다');
 }
 
-// ── 피드백 기록 ──
+// ── 피드백 기록 (회원별 그룹) ──
 function renderRecords() {
   const q = (document.getElementById('recordSearch').value || '').trim().toLowerCase();
-  let list = getFeedback();
+  let list = getFeedback().slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
   if (q) list = list.filter(r =>
-    r.memberName.toLowerCase().includes(q) ||
-    r.instructorName.toLowerCase().includes(q)
+    (r.memberName || '').toLowerCase().includes(q) ||
+    (r.instructorName || '').toLowerCase().includes(q)
   );
+
   document.getElementById('recordCount').textContent = list.length;
   const el = document.getElementById('recordList');
   if (!list.length) { el.innerHTML = '<div class="empty">기록이 없습니다</div>'; return; }
-  el.innerHTML = list.map(r => `
-    <div class="fb-record">
-      <div class="fb-record-top">
-        <span class="fb-record-name">${r.memberName}</span>
-        <span class="lv-badge ${LV_COLOR[r.level]}">레벨${r.level}</span>
-        <span class="fb-record-instructor">${r.instructorName} 강사</span>
-        <span class="fb-record-date">${r.date}</span>
+
+  // 회원별로 그룹핑 (순서는 최근 피드백 기준)
+  const grouped = {};
+  const order = [];
+  list.forEach(r => {
+    const key = r.memberId || r.memberName;
+    if (!grouped[key]) { grouped[key] = []; order.push(key); }
+    grouped[key].push(r);
+  });
+
+  // 각 회원 그룹 렌더링
+  el.innerHTML = order.map(key => {
+    const records = grouped[key];
+    const first = records[0];
+    const memberName = first.memberName || '(이름 없음)';
+    const latestDate = first.date || '';
+    const totalCount = records.length;
+    // 현재 회원의 레벨 (가장 최근 기록 기준)
+    const lv = first.level || 1;
+    const stage = first.stage || 1;
+
+    const rows = records.map(r => `
+      <div class="fb-record" style="padding:10px 0 10px 44px;border-bottom:1px solid var(--border-s)">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;flex-wrap:wrap">
+          <span class="lv-badge ${LV_COLOR[r.level]}" style="font-size:10px">레벨${r.level}-${r.stage||1}단계</span>
+          <span class="fb-record-instructor">${r.instructorName} 강사</span>
+          <span class="fb-record-date" style="margin-left:auto">${r.date}</span>
+        </div>
+        <div class="fb-record-items">
+          <span class="fb-record-item" style="color:var(--good)">✅ ${r.goodName}</span>
+          <span class="fb-record-item" style="color:var(--next)">📌 ${r.nextName}</span>
+        </div>
       </div>
-      <div class="fb-record-items">
-        <span class="fb-record-item" style="color:var(--good)">✅ ${r.goodName}</span>
-        <span class="fb-record-item" style="color:var(--next)">📌 ${r.nextName}</span>
+    `).join('');
+
+    return `
+      <div class="member-record-group" id="mrg-${key}">
+        <div class="member-record-header" onclick="toggleMemberRecords('${key}')">
+          <div class="member-avatar" style="width:36px;height:36px;font-size:14px;flex-shrink:0">${memberName.charAt(0)}</div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+              <span style="font-size:15px;font-weight:700">${memberName}</span>
+              <span class="lv-badge ${LV_COLOR[lv]}" style="font-size:10px">레벨${lv}-${stage}단계</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-2);margin-top:2px">총 ${totalCount}회 · 최근 ${latestDate}</div>
+          </div>
+          <span class="mrg-arrow" style="font-size:18px;color:var(--text-3);transition:transform 0.2s">›</span>
+        </div>
+        <div class="member-record-body" id="mrb-${key}" style="display:none">
+          ${rows}
+        </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
+}
+
+function toggleMemberRecords(key) {
+  const body = document.getElementById('mrb-' + key);
+  const header = body.previousElementSibling;
+  const arrow = header.querySelector('.mrg-arrow');
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  arrow.style.transform = isOpen ? '' : 'rotate(90deg)';
 }
 
 // ── 월간 리포트 ──
