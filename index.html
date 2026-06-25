@@ -367,6 +367,70 @@
     .lv-btn span { display: block; font-size: 10px; font-weight: 400; margin-top: 2px; opacity: 0.7; }
     .lv-btn.active { background: var(--blue); border-color: var(--blue); color: white; }
 
+    /* ── 12단계 선택 시트 ── */
+    .stage-picker-overlay {
+      position: fixed; inset: 0; z-index: 400;
+      background: rgba(0,0,0,0.52);
+      display: none; align-items: flex-end; justify-content: center;
+    }
+    .stage-picker-overlay.open { display: flex; }
+    .stage-picker-sheet {
+      width: 100%; max-width: 640px;
+      background: white; border-radius: 24px 24px 0 0;
+      padding: 12px 20px 44px;
+    }
+    .stage-picker-handle {
+      width: 36px; height: 4px; background: var(--border);
+      border-radius: 100px; margin: 0 auto 14px;
+    }
+    .stage-picker-title {
+      font-size: 16px; font-weight: 700; margin-bottom: 16px; text-align: center;
+      letter-spacing: -0.3px;
+    }
+    .stage-picker-lv {
+      margin-bottom: 12px;
+    }
+    .stage-picker-lv-header {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
+      text-transform: uppercase; padding: 4px 10px 6px;
+      border-radius: 8px 8px 0 0; opacity: 0.9;
+    }
+    .stage-picker-lv-header.lv1 { color: var(--lv1); background: var(--lv1-bg); }
+    .stage-picker-lv-header.lv2 { color: var(--lv2); background: var(--lv2-bg); }
+    .stage-picker-lv-header.lv3 { color: var(--lv3); background: var(--lv3-bg); }
+    .stage-picker-lv-header.lv4 { color: var(--lv4); background: var(--lv4-bg); }
+    .stage-picker-lv-btns {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;
+      padding: 8px; border-radius: 0 0 12px 12px;
+      border: 1.5px solid var(--border-s); border-top: none;
+    }
+    .stage-sel-btn {
+      padding: 10px 6px; border-radius: 8px;
+      border: 1.5px solid var(--border-s);
+      background: white; cursor: pointer; font-family: inherit;
+      text-align: center; transition: all 0.15s;
+      font-size: 13px; font-weight: 600; color: var(--text-2);
+      line-height: 1.3;
+    }
+    .stage-sel-btn span { display: block; font-size: 10px; font-weight: 400; opacity: 0.7; margin-top: 2px; }
+    .stage-sel-btn:active { opacity: 0.7; }
+    .stage-sel-btn.current-lv1 { border-color: var(--lv1); background: var(--lv1-bg); color: var(--lv1); }
+    .stage-sel-btn.current-lv2 { border-color: var(--lv2); background: var(--lv2-bg); color: var(--lv2); }
+    .stage-sel-btn.current-lv3 { border-color: var(--lv3); background: var(--lv3-bg); color: var(--lv3); }
+    .stage-sel-btn.current-lv4 { border-color: var(--lv4); background: var(--lv4-bg); color: var(--lv4); }
+
+    /* 회원등록 세부단계 피커 */
+    .substage-picker {
+      display: flex; gap: 8px; margin-top: 4px;
+    }
+    .substage-btn {
+      flex: 1; padding: 10px 6px; border: 1.5px solid var(--border);
+      border-radius: 10px; background: white; color: var(--text-2);
+      font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
+      transition: all 0.15s; text-align: center;
+    }
+    .substage-btn.active { background: var(--blue); border-color: var(--blue); color: white; }
+
     @media (max-width: 480px) {
       .instructor-grid { grid-template-columns: 1fr 1fr; }
       .wrap { padding: 20px 16px 100px; }
@@ -594,6 +658,14 @@
             <button class="lv-btn" data-lv="4" onclick="setAddLevel(4)">레벨 4<span>Flow</span></button>
           </div>
         </div>
+        <div class="fgrp">
+          <label>시작 단계</label>
+          <div class="substage-picker">
+            <button class="substage-btn active" data-ss="1" onclick="setAddStage(1)">1단계</button>
+            <button class="substage-btn" data-ss="2" onclick="setAddStage(2)">2단계</button>
+            <button class="substage-btn" data-ss="3" onclick="setAddStage(3)">3단계</button>
+          </div>
+        </div>
         <button class="btn" onclick="addMember()">회원 등록</button>
       </div>
       <div class="card" style="padding: 6px 16px">
@@ -742,6 +814,50 @@
 <!-- 토스트 -->
 <div id="toast"></div>
 
+<!-- ── 12단계 선택 시트 ── -->
+<div class="stage-picker-overlay" id="stagePickerOverlay" onclick="closeStagePickerOutside(event)">
+  <div class="stage-picker-sheet">
+    <div class="stage-picker-handle"></div>
+    <div class="stage-picker-title" id="stagePickerTitle">단계 변경</div>
+
+    <div class="stage-picker-lv" id="stagePickerLv1">
+      <div class="stage-picker-lv-header lv1">레벨 1 — Awakening · 호흡·코어·견갑</div>
+      <div class="stage-picker-lv-btns">
+        <button class="stage-sel-btn" id="spBtn1-1" onclick="applyStage(1,1)">1-1단계<span>호흡의 기초</span></button>
+        <button class="stage-sel-btn" id="spBtn1-2" onclick="applyStage(1,2)">1-2단계<span>코어 인식</span></button>
+        <button class="stage-sel-btn" id="spBtn1-3" onclick="applyStage(1,3)">1-3단계<span>어깨·견갑</span></button>
+      </div>
+    </div>
+
+    <div class="stage-picker-lv" id="stagePickerLv2">
+      <div class="stage-picker-lv-header lv2">레벨 2 — Alignment · 골반·정렬·하체</div>
+      <div class="stage-picker-lv-btns">
+        <button class="stage-sel-btn" id="spBtn2-1" onclick="applyStage(2,1)">2-1단계<span>골반·척추 중립</span></button>
+        <button class="stage-sel-btn" id="spBtn2-2" onclick="applyStage(2,2)">2-2단계<span>정렬·고관절</span></button>
+        <button class="stage-sel-btn" id="spBtn2-3" onclick="applyStage(2,3)">2-3단계<span>발·하체 연결</span></button>
+      </div>
+    </div>
+
+    <div class="stage-picker-lv" id="stagePickerLv3">
+      <div class="stage-picker-lv-header lv3">레벨 3 — Connection · 발바닥·연결·통합</div>
+      <div class="stage-picker-lv-btns">
+        <button class="stage-sel-btn" id="spBtn3-1" onclick="applyStage(3,1)">3-1단계<span>발바닥 균형</span></button>
+        <button class="stage-sel-btn" id="spBtn3-2" onclick="applyStage(3,2)">3-2단계<span>하체→코어 연결</span></button>
+        <button class="stage-sel-btn" id="spBtn3-3" onclick="applyStage(3,3)">3-3단계<span>전신 통합</span></button>
+      </div>
+    </div>
+
+    <div class="stage-picker-lv" id="stagePickerLv4">
+      <div class="stage-picker-lv-header lv4">레벨 4 — Flow · 에너지·의식·완성</div>
+      <div class="stage-picker-lv-btns">
+        <button class="stage-sel-btn" id="spBtn4-1" onclick="applyStage(4,1)">4-1단계<span>에너지·시선</span></button>
+        <button class="stage-sel-btn" id="spBtn4-2" onclick="applyStage(4,2)">4-2단계<span>공간·의식</span></button>
+        <button class="stage-sel-btn" id="spBtn4-3" onclick="applyStage(4,3)">4-3단계<span>흐름·완성</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
@@ -847,6 +963,7 @@ let currentMember = null;
 let fbGoodSel = null;
 let fbNextSel = null;
 let addLevel = 1;
+let addStage = 1;
 
 // ── 토스트 ──
 function toast(msg) {
@@ -1319,8 +1436,14 @@ function setAddLevel(lv) {
   addLevel = lv;
   document.querySelectorAll('.lv-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.lv) === lv));
 }
+// ── 세부단계 선택 (회원 등록용) ──
+function setAddStage(st) {
+  addStage = st;
+  document.querySelectorAll('.substage-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.ss) === st));
+}
 document.addEventListener('DOMContentLoaded', () => {
   setAddLevel(1);
+  setAddStage(1);
   syncDown(); // 앱 시작 시 서버에서 최신 데이터 동기화
 });
 
@@ -1332,7 +1455,7 @@ function addMember() {
   if (raw.length < 10) { toast('올바른 전화번호를 입력해주세요'); return; }
   const members = getMembers();
   if (members.find(m => m.phone.replace(/\D/g,'') === raw)) { toast('이미 등록된 전화번호입니다'); return; }
-  members.push({ id: uid(), name, phone: fmtPhone(raw), level: addLevel, stage: 1, created: new Date().toISOString().slice(0,10) });
+  members.push({ id: uid(), name, phone: fmtPhone(raw), level: addLevel, stage: addStage, created: new Date().toISOString().slice(0,10) });
   setMembers(members);
   document.getElementById('inp-name').value = '';
   document.getElementById('inp-phone').value = '';
@@ -1362,13 +1485,11 @@ function renderAdminMembers() {
         <button class="btn-del" onclick="delMember('${m.id}')">삭제</button>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
-        <span class="lv-badge ${LV_COLOR[m.level]}" style="font-size:12px">레벨${m.level}-${stage}단계</span>
+        <button onclick="openStagePicker('${m.id}')" style="font-size:12px;padding:3px 10px;border-radius:6px;border:none;cursor:pointer;font-family:inherit;font-weight:700;" class="lv-badge ${LV_COLOR[m.level]}">레벨${m.level}-${stage}단계 ✎</button>
         <div style="flex:1;height:5px;background:var(--border-s);border-radius:100px;overflow:hidden">
           <div style="height:100%;width:${pct}%;background:var(--blue);border-radius:100px;transition:width 0.3s"></div>
         </div>
         <span style="font-size:11px;color:var(--text-2)">${p.done}/${SESSIONS_PER_STAGE}</span>
-        ${canDown ? `<button onclick="stepMember('${m.id}',-1)" style="font-size:11px;padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer">◀</button>` : ''}
-        ${canUp   ? `<button onclick="stepMember('${m.id}',1)"  style="font-size:11px;padding:3px 8px;border:1px solid var(--blue);border-radius:6px;background:var(--blue);color:white;cursor:pointer">단계업 ▶</button>` : ''}
       </div>
     </div>
   `}).join('');
@@ -1380,7 +1501,7 @@ function changeMemberLevel(id, lv) {
   if (m) { m.level = parseInt(lv); m.stage = 1; setMembers(list); toast('레벨이 변경됐습니다'); renderAdminMembers(); }
 }
 
-// 단계 올리기/내리기 (dir: +1 / -1)
+/// 단계 올리기/내리기 (dir: +1 / -1) — 내부 유틸로 유지
 function stepMember(id, dir) {
   const list = getMembers();
   const m = list.find(x => x.id === id);
@@ -1394,6 +1515,54 @@ function stepMember(id, dir) {
   setMembers(list);
   renderAdminMembers();
   toast(m.name + '님 → 레벨' + lv + '-' + stage + '단계');
+}
+
+// ── 12단계 직접 선택 시트 ──
+let _stagePickerTargetId = null;
+
+function openStagePicker(id) {
+  _stagePickerTargetId = id;
+  const list = getMembers();
+  const m = list.find(x => x.id === id);
+  if (!m) return;
+
+  // 타이틀 업데이트
+  document.getElementById('stagePickerTitle').textContent = m.name + '님 · 단계 변경';
+
+  // 모든 버튼 초기화
+  for (let lv = 1; lv <= 4; lv++) {
+    for (let st = 1; st <= 3; st++) {
+      const btn = document.getElementById('spBtn' + lv + '-' + st);
+      if (btn) {
+        btn.className = 'stage-sel-btn';
+        if (lv === (m.level || 1) && st === (m.stage || 1)) {
+          btn.className = 'stage-sel-btn current-lv' + lv;
+        }
+      }
+    }
+  }
+  document.getElementById('stagePickerOverlay').classList.add('open');
+}
+
+function closeStagePickerOutside(e) {
+  if (e.target === document.getElementById('stagePickerOverlay')) closeStagePicker();
+}
+function closeStagePicker() {
+  document.getElementById('stagePickerOverlay').classList.remove('open');
+  _stagePickerTargetId = null;
+}
+
+function applyStage(lv, stage) {
+  if (!_stagePickerTargetId) return;
+  const list = getMembers();
+  const m = list.find(x => x.id === _stagePickerTargetId);
+  if (!m) return;
+  m.level = lv;
+  m.stage = stage;
+  setMembers(list);
+  renderAdminMembers();
+  closeStagePicker();
+  toast(m.name + '님 → 레벨' + lv + '-' + stage + '단계로 변경됐습니다');
 }
 
 function delMember(id) {
